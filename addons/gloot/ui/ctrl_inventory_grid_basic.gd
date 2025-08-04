@@ -297,6 +297,12 @@ func _on_item_dropped(item: InventoryItem, drop_position: Vector2) -> void:
     if !is_instance_valid(inventory):
         return
 
+    # Add half a field size to snap to the closest inventory field when moving/transferring
+    drop_position += field_dimensions / 2
+
+    if !_is_hovering(drop_position):
+        return
+
     if inventory.has_item(item):
         _handle_item_move(item, drop_position)
     else:
@@ -304,7 +310,7 @@ func _on_item_dropped(item: InventoryItem, drop_position: Vector2) -> void:
 
 
 func _handle_item_move(item: InventoryItem, drop_position: Vector2) -> void:
-    var field_coords = get_field_coords(drop_position + (field_dimensions / 2))
+    var field_coords = get_field_coords(drop_position)
     if _move_item(item, field_coords):
         return
     if _merge_item(item, field_coords):
@@ -316,7 +322,8 @@ func _handle_item_transfer(item: InventoryItem, drop_position: Vector2) -> void:
     var source_inventory: Inventory = item.get_inventory()
     
     var grid_constraint: GridConstraint = inventory.get_constraint(GridConstraint)
-    var field_coords = get_field_coords(drop_position + (field_dimensions / 2))
+
+    var field_coords = get_field_coords(drop_position)
     if source_inventory != null:
         if source_inventory.protoset != inventory.protoset:
             return
@@ -327,6 +334,10 @@ func _handle_item_transfer(item: InventoryItem, drop_position: Vector2) -> void:
         _swap_items(item, field_coords)
     elif !grid_constraint.add_item_at(item, field_coords):
         _swap_items(item, field_coords)
+
+
+func _is_hovering(local_pos: Vector2) -> bool:
+    return get_rect().has_point(local_pos)
 
 
 func get_field_coords(local_pos: Vector2) -> Vector2i:
