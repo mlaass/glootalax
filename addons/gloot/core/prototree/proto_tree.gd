@@ -71,26 +71,44 @@ func deserialize(json: JSON) -> bool:
         return false
     if json.data.is_empty():
         return true
+
+    var base_pending: Dictionary = {}
     for prototype_id in json.data.keys():
         var base: Prototype = null
+        var base_id: String = ""
         var prototype_dict = json.data[prototype_id]
         if prototype_dict.has("inherits"):
-            base = _root.get_derived_prototype(prototype_dict["inherits"])
+            base_id = prototype_dict["inherits"]
+            base = _root._find_derived_prototype(base_id)
         else:
             base = _root
 
         if base == null:
-            clear()
-            return false
-        var new_protototype = base.inherit(prototype_id)
-        assert(new_protototype)
-        for property in prototype_dict.keys():
-            if typeof(prototype_dict[property]) == TYPE_STRING:
-                var value = _Utils.str_to_var(prototype_dict[property])
-                if value == null:
-                    new_protototype.set_property(property, prototype_dict[property])
-                else:
-                    new_protototype.set_property(property, value)
-            else:
+            if !base_pending.has(base_id):
+                base_pending[base_id] = []
+            base_pending[base_id].append(prototype_id)
+        else:
+            var new_prototype = _deserialize_prototype(prototype_dict, base, prototype_id)
+
+            if base_pending.has(prototype_id):
+                for derived_id in base_pending[prototype_id]:
+                    _deserialize_prototype(json.data[derived_id], new_prototype, derived_id)
+                base_pending.erase(prototype_id)
+
+    return base_pending.is_empty()
+
+
+func _deserialize_prototype(prototype_dict: Dictionary, base: Prototype, prototype_id: String) -> Prototype:
+    var new_protototype = base.inherit(prototype_id)
+    assert(new_protototype)
+    for property in prototype_dict.keys():
+        if typeof(prototype_dict[property]) == TYPE_STRING:
+            var value = _Utils.str_to_var(prototype_dict[property])
+            if value == null:
                 new_protototype.set_property(property, prototype_dict[property])
-    return true
+            else:
+                new_protototype.set_property(property, value)
+        else:
+            new_protototype.set_property(property, prototype_dict[property])
+
+    return new_protototype

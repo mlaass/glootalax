@@ -13,6 +13,7 @@ func init_suite() -> void:
         "properties_test",
         "prototree_test",
         "deserialize_test",
+        "deserialize_inheritance_test",
     ]
 
 
@@ -78,3 +79,14 @@ func deserialize_test() -> void:
     var item1 := prototree.get_prototype("item1")
     assert(item1.get_property("name") == "item 1")
     assert(item1.get_property("image") == "res://images/item_book_blue.png")
+
+
+func deserialize_inheritance_test() -> void:
+    var prototree := ProtoTree.new()
+    assert(prototree.deserialize(preload("res://tests/data/protoset_inheritance.json")))
+    assert(!prototree.is_empty())
+    assert(prototree.has_prototype("base"))
+    var base := prototree.get_prototype("base")
+    assert(base.get_property("name") == "base")
+    var derived := prototree.get_prototype("derived")
+    assert(derived.get_property("name") == "base")

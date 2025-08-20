@@ -124,7 +124,8 @@ func get_derived_prototype(prototype_id: String) -> Prototype:
 
 
 func _find_derived_prototype(prototype_id: String) -> Prototype:
-    assert(_prototype_id_taken(prototype_id), "Prototype '%s' not found!" % prototype_id)
+    if !_prototype_id_taken(prototype_id):
+        return null
     if _prototypes.has(prototype_id):
         return _prototypes[prototype_id]
     for p in _prototypes:

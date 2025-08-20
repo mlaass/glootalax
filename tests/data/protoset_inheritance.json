@@ -1,0 +1,9 @@
+{
+    "derived": {
+        "inherits": "base",
+        "description": "some description"
+    },
+    "base": {
+        "name": "base"
+    }
+}
