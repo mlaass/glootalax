@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://o6g61xdkjii0"]
+[gd_scene load_steps=19 format=3 uid="uid://o6g61xdkjii0"]
 
 [ext_resource type="Script" uid="uid://qaysak7mjhy6" path="res://examples/inventory_grid_stacked_transfer.gd" id="1_yjyyb"]
 [ext_resource type="Script" uid="uid://d0pfc3q6sof8y" path="res://addons/gloot/ui/ctrl_inventory_grid.gd" id="2_ptyr5"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://c88tils8h0042" path="res://addons/gloot/core/constraints/item_count_constraint.gd" id="10_1wuv2"]
 [ext_resource type="Script" uid="uid://b8hbvp4kl88cn" path="res://addons/gloot/core/constraints/grid_constraint.gd" id="10_6njuc"]
 [ext_resource type="Script" uid="uid://c6wangdtwc4m7" path="res://addons/gloot/core/item_slot.gd" id="10_lyc83"]
+[ext_resource type="Script" uid="uid://csru5aqy5mao8" path="res://addons/gloot/core/constraints/property_match_constraint.gd" id="10_uixro"]
 
 [sub_resource type="StyleBoxTexture" id="1"]
 texture = ExtResource("3_lwfya")
@@ -166,7 +167,7 @@ size_flags_horizontal = 4
 
 [node name="CtrlItemSlot" type="Control" parent="VBoxContainer/HBoxContainer/VBoxContainer3/PanelContainer" node_paths=PackedStringArray("item_slot")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 script = ExtResource("6_wlx5u")
 item_slot = NodePath("../../../../../ItemSlot")
@@ -197,6 +198,12 @@ offset_bottom = 14.0
 [node name="ItemSlot" type="Node" parent="."]
 script = ExtResource("10_lyc83")
 
+[node name="PropertyMatchConstraint" type="Node" parent="ItemSlot"]
+script = ExtResource("10_uixro")
+required_properties = {
+&"category": 3
+}
+
 [node name="InventoryLeft" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_a6m37")
@@ -218,7 +225,7 @@ _serialized_format = {
 "properties": {
 "stack_size": {
 "type": 2,
-"value": "4"
+"value": "1"
 }
 }
 }, {
@@ -226,7 +233,7 @@ _serialized_format = {
 "properties": {
 "stack_size": {
 "type": 2,
-"value": "12"
+"value": "1"
 }
 }
 }],
@@ -263,12 +270,46 @@ insertion_priority = 0
 [node name="InventoryEquip" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_a6m37")
-_serialized_format = {}
-
-[node name="ItemCountConstraint" type="Node" parent="InventoryEquip"]
-script = ExtResource("10_1wuv2")
-metadata/_custom_type_script = "uid://c88tils8h0042"
+_serialized_format = {
+"constraints": {
+"res://addons/gloot/core/constraints/grid_constraint.gd": {
+"data": {
+"item_positions": {},
+"size": "Vector2i(2, 2)"
+},
+"name": &"GridConstraint"
+},
+"res://addons/gloot/core/constraints/item_count_constraint.gd": {
+"data": {
+"capacity": 1
+},
+"name": &"ItemCountConstraint"
+},
+"res://addons/gloot/core/constraints/property_match_constraint.gd": {
+"data": {
+"match_all": true,
+"required_properties": {
+&"category": {
+"type": 2,
+"value": "3"
+}
+}
+},
+"name": &"PropertyMatchConstraint"
+}
+},
+"node_name": "InventoryEquip"
+}
 
 [node name="GridConstraint" type="Node" parent="InventoryEquip"]
 script = ExtResource("10_6njuc")
 size = Vector2i(2, 2)
+
+[node name="ItemCountConstraint" type="Node" parent="InventoryEquip"]
+script = ExtResource("10_1wuv2")
+
+[node name="PropertyMatchConstraint" type="Node" parent="InventoryEquip"]
+script = ExtResource("10_uixro")
+required_properties = {
+&"category": 3
+}

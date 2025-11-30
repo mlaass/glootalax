@@ -9,3 +9,6 @@ id = "item_2x2"
 name = "Armour"
 texture = ExtResource("2")
 size = Vector2i(2, 2)
+custom_properties = {
+&"category": 3
+}

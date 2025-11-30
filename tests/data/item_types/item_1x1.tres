@@ -7,3 +7,6 @@
 script = ExtResource("1")
 id = "item_1x1"
 texture = ExtResource("2")
+custom_properties = {
+&"category": 0
+}

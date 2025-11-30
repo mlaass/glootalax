@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://6ij3qlnr0qr3"]
+[gd_scene load_steps=18 format=3 uid="uid://6ij3qlnr0qr3"]
 
 [ext_resource type="Script" uid="uid://cicxp1a32ye3s" path="res://tests/item_definitions_test.gd" id="2"]
 [ext_resource type="Script" uid="uid://hfcic3vuiugx" path="res://tests/quadtree_tests.gd" id="2_bbskb"]
@@ -15,6 +15,8 @@
 [ext_resource type="Script" uid="uid://bf72wpy1pripb" path="res://tests/verification_test.gd" id="14"]
 [ext_resource type="Script" uid="uid://dfpomiy7nh8mm" path="res://tests/item_slot_tests.gd" id="14_3213w"]
 [ext_resource type="Script" uid="uid://v2hlddmvlkm8" path="res://tests/test_runner.gd" id="15"]
+[ext_resource type="Script" path="res://tests/constraint_tests/item_type_constraint_tests.gd" id="16_itc"]
+[ext_resource type="Script" path="res://tests/constraint_tests/property_match_constraint_tests.gd" id="17_pmc"]
 
 [node name="InventorySystemTests" type="Node"]
 script = ExtResource("15")
@@ -60,3 +62,9 @@ script = ExtResource("8_btq38")
 
 [node name="ItemSlotTests" type="Node" parent="."]
 script = ExtResource("14_3213w")
+
+[node name="ItemTypeConstraintTests" type="Node" parent="."]
+script = ExtResource("16_itc")
+
+[node name="PropertyMatchConstraintTests" type="Node" parent="."]
+script = ExtResource("17_pmc")
