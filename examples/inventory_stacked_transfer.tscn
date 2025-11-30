@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://b2owv7hirds6s"]
+[gd_scene load_steps=10 format=3 uid="uid://b2owv7hirds6s"]
 
 [ext_resource type="Texture2D" uid="uid://marv3em7xope" path="res://images/item_book_blue.png" id="2_q4mul"]
 [ext_resource type="Texture2D" uid="uid://b87v12g1icu3u" path="res://images/item_scroll_blue.png" id="3_54nof"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://bu5mhp7ayfx4j" path="res://addons/gloot/ui/ctrl_inventory.gd" id="4_nim7g"]
 [ext_resource type="Script" uid="uid://bikhe74xfo7u4" path="res://addons/gloot/ui/ctrl_inventory_capacity.gd" id="5_v7bum"]
 [ext_resource type="Script" uid="uid://trghhrgo3fax" path="res://addons/gloot/ui/ctrl_item_slot.gd" id="6_otfc2"]
-[ext_resource type="JSON" path="res://tests/data/protoset_stacks.json" id="6_v6n8v"]
 [ext_resource type="Script" uid="uid://c6wangdtwc4m7" path="res://addons/gloot/core/item_slot.gd" id="8_worre"]
 [ext_resource type="Script" uid="uid://5hfig5q3x8it" path="res://addons/gloot/core/inventory.gd" id="9_1flkn"]
 [ext_resource type="Script" uid="uid://ba5wmjtc5l8i3" path="res://addons/gloot/core/constraints/weight_constraint.gd" id="10_i7fg4"]
@@ -123,12 +122,10 @@ text = ">>>"
 [node name="ItemSlot" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("8_worre")
-protoset = ExtResource("6_v6n8v")
 
 [node name="InventoryLeft" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_1flkn")
-protoset = ExtResource("6_v6n8v")
 _serialized_format = {
 "constraints": {
 "res://addons/gloot/core/constraints/weight_constraint.gd": {
@@ -139,23 +136,19 @@ _serialized_format = {
 }
 },
 "items": [{
-"protoset": "res://tests/data/protoset_stacks.json",
-"prototype_id": "minimal_item"
+"item_type": "res://tests/data/item_types/minimal_item.tres"
 }, {
-"protoset": "res://tests/data/protoset_stacks.json",
-"prototype_id": "big_item"
+"item_type": "res://tests/data/item_types/big_item.tres"
 }, {
+"item_type": "res://tests/data/item_types/stackable_item.tres",
 "properties": {
-"max_stack_size": {
-"type": 3,
-"value": "100.0"
+"stack_size": {
+"type": 2,
+"value": "10"
 }
-},
-"protoset": "res://tests/data/protoset_stacks.json",
-"prototype_id": "stackable_item"
+}
 }],
-"node_name": "InventoryLeft",
-"protoset": "res://tests/data/protoset_stacks.json"
+"node_name": "InventoryLeft"
 }
 
 [node name="WeightConstraint" type="Node" parent="InventoryLeft"]
@@ -165,7 +158,6 @@ capacity = 50.0
 [node name="InventoryRight" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_1flkn")
-protoset = ExtResource("6_v6n8v")
 _serialized_format = {
 "constraints": {
 "res://addons/gloot/core/constraints/weight_constraint.gd": {
@@ -176,23 +168,19 @@ _serialized_format = {
 }
 },
 "items": [{
-"protoset": "res://tests/data/protoset_stacks.json",
-"prototype_id": "minimal_item"
+"item_type": "res://tests/data/item_types/minimal_item.tres"
 }, {
-"protoset": "res://tests/data/protoset_stacks.json",
-"prototype_id": "big_item"
+"item_type": "res://tests/data/item_types/big_item.tres"
 }, {
+"item_type": "res://tests/data/item_types/stackable_item.tres",
 "properties": {
-"max_stack_size": {
-"type": 3,
-"value": "100.0"
+"stack_size": {
+"type": 2,
+"value": "10"
 }
-},
-"protoset": "res://tests/data/protoset_stacks.json",
-"prototype_id": "stackable_item"
+}
 }],
-"node_name": "InventoryRight",
-"protoset": "res://tests/data/protoset_stacks.json"
+"node_name": "InventoryRight"
 }
 
 [node name="WeightConstraint" type="Node" parent="InventoryRight"]

@@ -2,6 +2,8 @@ extends TestSuite
 
 var inventory: Inventory
 
+const MINIMAL_ITEM = preload("res://tests/data/item_types/minimal_item.tres")
+
 
 func init_suite() -> void:
     tests = ["test_item_count"]
@@ -9,9 +11,8 @@ func init_suite() -> void:
 
 func init_test() -> void:
     inventory = Inventory.new()
-    inventory.protoset = preload("res://tests/data/protoset_basic.json")
-    inventory.create_and_add_item("minimal_item")
-    inventory.create_and_add_item("minimal_item")
+    inventory.create_and_add_item(MINIMAL_ITEM)
+    inventory.create_and_add_item(MINIMAL_ITEM)
 
 
 func cleanup_test() -> void:

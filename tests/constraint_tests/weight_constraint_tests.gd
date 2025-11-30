@@ -1,10 +1,11 @@
 extends TestSuite
 
 var inventory: Inventory
-var item: InventoryItem
+var item: ItemStack
 var weight_constraint: WeightConstraint
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_stacks.json")
+const MINIMAL_ITEM = preload("res://tests/data/item_types/minimal_item.tres")
+const BIG_ITEM = preload("res://tests/data/item_types/big_item.tres")
 
 
 func init_suite():
@@ -21,8 +22,8 @@ func init_suite():
 
 
 func init_test() -> void:
-    item = create_item(TEST_PROTOSET, "big_item")
-    inventory = create_inventory(TEST_PROTOSET)
+    item = create_item(BIG_ITEM)
+    inventory = create_inventory()
     weight_constraint = enable_weight_constraint(inventory)
     weight_constraint.capacity = 100.0
 
@@ -85,17 +86,16 @@ func test_get_space_for() -> void:
 
 func test_swap_items() -> void:
     weight_constraint.capacity = 3
-    var small_item = inventory.create_and_add_item("minimal_item")
-    
+    var small_item = inventory.create_and_add_item(MINIMAL_ITEM)
+
     var inv2 = Inventory.new()
-    inv2.protoset = TEST_PROTOSET
     enable_weight_constraint(inv2, 20.0)
 
-    var big_item = inv2.create_and_add_item("big_item")
+    var big_item = inv2.create_and_add_item(BIG_ITEM)
 
-    assert(!InventoryItem.swap(small_item, big_item))
+    assert(!ItemStack.swap(small_item, big_item))
     WeightConstraint.set_item_weight(big_item, 1)
-    assert(InventoryItem.swap(small_item, big_item))
+    assert(ItemStack.swap(small_item, big_item))
     assert(inventory.has_item(big_item))
     assert(!inventory.has_item(small_item))
 
@@ -112,7 +112,7 @@ func test_serialize() -> void:
 
     assert(weight_constraint.deserialize(constraint_data))
     assert(weight_constraint.capacity == capacity)
-    
+
 
 func test_serialize_json() -> void:
     weight_constraint.capacity = 42.42
@@ -127,6 +127,6 @@ func test_serialize_json() -> void:
 
     weight_constraint.reset()
     assert(weight_constraint.capacity == WeightConstraint.DEFAULT_CAPACITY)
-    
+
     assert(weight_constraint.deserialize(constraint_data))
     assert(weight_constraint.capacity == capacity)

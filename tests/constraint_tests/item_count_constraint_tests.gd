@@ -1,10 +1,10 @@
 extends TestSuite
 
 var inventory: Inventory
-var item: InventoryItem
+var item: ItemStack
 var item_count_constraint: ItemCountConstraint
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_basic.json")
+const MINIMAL_ITEM = preload("res://tests/data/item_types/minimal_item.tres")
 
 
 func init_suite():
@@ -21,8 +21,8 @@ func init_suite():
 
 
 func init_test() -> void:
-    item = create_item(TEST_PROTOSET, "minimal_item")
-    inventory = create_inventory(TEST_PROTOSET)
+    item = create_item(MINIMAL_ITEM)
+    inventory = create_inventory()
     item_count_constraint = enable_item_count_constraint(inventory)
 
 
@@ -73,15 +73,14 @@ func test_get_space_for() -> void:
 
 func test_swap_items() -> void:
     item_count_constraint.capacity = 3
-    var item1 = inventory.create_and_add_item("minimal_item")
-    
+    var item1 = inventory.create_and_add_item(MINIMAL_ITEM)
+
     var inv2 = Inventory.new()
-    inv2.protoset = TEST_PROTOSET
     enable_item_count_constraint(inv2, 20)
 
-    var item2 = inv2.create_and_add_item("minimal_item")
+    var item2 = inv2.create_and_add_item(MINIMAL_ITEM)
 
-    assert(InventoryItem.swap(item1, item2))
+    assert(ItemStack.swap(item1, item2))
     assert(inventory.has_item(item2))
     assert(!inventory.has_item(item1))
 
@@ -98,7 +97,7 @@ func test_serialize() -> void:
 
     assert(item_count_constraint.deserialize(constraint_data))
     assert(item_count_constraint.capacity == capacity)
-    
+
 
 func test_serialize_json() -> void:
     item_count_constraint.capacity = 42
@@ -113,6 +112,6 @@ func test_serialize_json() -> void:
 
     item_count_constraint.reset()
     assert(item_count_constraint.capacity == 1)
-    
+
     assert(item_count_constraint.deserialize(constraint_data))
     assert(item_count_constraint.capacity == capacity)

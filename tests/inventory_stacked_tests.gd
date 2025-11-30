@@ -2,14 +2,17 @@ extends TestSuite
 
 var inventory: Inventory
 var inventory_2: Inventory
-var item: InventoryItem
-var big_item: InventoryItem
-var stackable_item: InventoryItem
-var stackable_item_2: InventoryItem
-var limited_stackable_item: InventoryItem
-var limited_stackable_item_2: InventoryItem
+var item: ItemStack
+var big_item: ItemStack
+var stackable_item: ItemStack
+var stackable_item_2: ItemStack
+var limited_stackable_item: ItemStack
+var limited_stackable_item_2: ItemStack
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_stacks.json")
+const MINIMAL_ITEM = preload("res://tests/data/item_types/minimal_item.tres")
+const BIG_ITEM = preload("res://tests/data/item_types/big_item.tres")
+const STACKABLE_ITEM = preload("res://tests/data/item_types/stackable_item.tres")
+const LIMITED_STACKABLE_ITEM = preload("res://tests/data/item_types/limited_stackable_item.tres")
 
 
 func init_suite() -> void:
@@ -34,15 +37,19 @@ func init_suite() -> void:
 
 
 func init_test() -> void:
-    inventory = create_inventory_stacked(TEST_PROTOSET, 10)
-    inventory_2 = create_inventory_stacked(TEST_PROTOSET, 10)
+    inventory = create_inventory_stacked(10)
+    inventory_2 = create_inventory_stacked(10)
 
-    item = create_item(TEST_PROTOSET, "minimal_item")
-    big_item = create_item(TEST_PROTOSET, "big_item")
-    stackable_item = create_item(TEST_PROTOSET, "stackable_item")
-    stackable_item_2 = create_item(TEST_PROTOSET, "stackable_item")
-    limited_stackable_item = create_item(TEST_PROTOSET, "limited_stackable_item")
-    limited_stackable_item_2 = create_item(TEST_PROTOSET, "limited_stackable_item")
+    item = create_item(MINIMAL_ITEM)
+    big_item = create_item(BIG_ITEM)
+    stackable_item = create_item(STACKABLE_ITEM)
+    stackable_item.set_stack_size(10)
+    stackable_item_2 = create_item(STACKABLE_ITEM)
+    stackable_item_2.set_stack_size(10)
+    limited_stackable_item = create_item(LIMITED_STACKABLE_ITEM)
+    limited_stackable_item.set_stack_size(5)
+    limited_stackable_item_2 = create_item(LIMITED_STACKABLE_ITEM)
+    limited_stackable_item_2.set_stack_size(5)
 
 
 func cleanup_test() -> void:
@@ -100,8 +107,8 @@ func test_automerge() -> void:
     assert(is_node_valid(stackable_item))
     assert(inventory.add_item_automerge(stackable_item_2))
     assert(inventory.get_item_count() == 1)
-    
-    
+
+
 func test_automerge_custom_dst_properties() -> void:
     assert(stackable_item.set_stack_size(2))
     assert(stackable_item_2.set_stack_size(2))
@@ -196,7 +203,7 @@ func test_serialize() -> void:
     assert(inventory.get_item_count() == 1)
     assert(inventory.get_constraint(WeightConstraint).capacity == capacity)
     assert(inventory.get_constraint(WeightConstraint).get_occupied_space() == occupied_space)
-    
+
 
 func test_serialize_json() -> void:
     assert(inventory.add_item(item))

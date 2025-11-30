@@ -14,12 +14,11 @@ Base inventory constraint class which implements some basic constraint functiona
 
 ## Methods
 
-* `get_space_for(item: InventoryItem) -> int` - Returns the number of times this constraint can receive the given item.
-* `has_space_for(item: InventoryItem) -> bool` - Checks if the constraint can receive the given item.
+* `get_space_for(item: ItemStack) -> int` - Returns the number of times this constraint can receive the given item.
+* `has_space_for(item: ItemStack) -> bool` - Checks if the constraint can receive the given item.
 * `serialize() -> Dictionary` - Serializes the constraint into a `Dictionary`.
 * `deserialize(source: Dictionary) -> bool` - Loads the constraint data from the given `Dictionary`.
 
 ## Signals
 
 * `changed()` - Emitted when the state of the constraint has changed.
-

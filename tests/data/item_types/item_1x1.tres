@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ItemType" load_steps=3 format=3 uid="uid://bmnuyp7yqohbw"]
+
+[ext_resource type="Script" uid="uid://bvb5c4tt8nff" path="res://addons/gloot/core/item_type.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://marv3em7xope" path="res://images/item_book_blue.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "item_1x1"
+texture = ExtResource("2")

@@ -10,7 +10,7 @@ func _ready() -> void:
 
 
 func _on_ltor_pressed() -> void:
-    var selected_items: Array[InventoryItem] = %CtrlInventoryLeft.get_selected_inventory_items()
+    var selected_items: Array[ItemStack] = %CtrlInventoryLeft.get_selected_inventory_items()
     if selected_items.is_empty():
         return
 
@@ -19,7 +19,7 @@ func _on_ltor_pressed() -> void:
 
 
 func _on_rtol_pressed() -> void:
-    var selected_items: Array[InventoryItem] = %CtrlInventoryRight.get_selected_inventory_items()
+    var selected_items: Array[ItemStack] = %CtrlInventoryRight.get_selected_inventory_items()
     if selected_items.is_empty():
         return
 
@@ -30,7 +30,7 @@ func _on_rtol_pressed() -> void:
 func _on_equip_pressed() -> void:
     if %ItemSlot.get_item() != null:
         return
-    var item: InventoryItem = %CtrlInventoryLeft.get_selected_inventory_item()
+    var item: ItemStack = %CtrlInventoryLeft.get_selected_inventory_item()
     if item == null:
         return
 

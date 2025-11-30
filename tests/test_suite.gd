@@ -25,8 +25,8 @@ func cleanup_suite() -> void:
 # Called before a unit test is run
 func init_test() -> void:
     pass
-    
-    
+
+
 # Called after a unit test is run
 func cleanup_test() -> void:
     pass
@@ -44,25 +44,20 @@ func _run_tests():
         cleanup_test()
 
 
-func create_inventory(protoset: JSON) -> Inventory:
+func create_inventory() -> Inventory:
     var inventory = Inventory.new()
-    inventory.protoset = protoset
     return inventory
 
 
-func create_inventory_stacked(protoset: JSON, capacity: float) -> Inventory:
+func create_inventory_stacked(capacity: float) -> Inventory:
     var inventory = Inventory.new()
-    inventory.protoset = protoset
     enable_weight_constraint(inventory, capacity)
-
     return inventory
 
 
-func create_inventory_grid(protoset: JSON, size: Vector2i) -> Inventory:
+func create_inventory_grid(size: Vector2i) -> Inventory:
     var inventory = Inventory.new()
-    inventory.protoset = protoset
     enable_grid_constraint(inventory, size)
-
     return inventory
 
 
@@ -87,9 +82,9 @@ func enable_item_count_constraint(inventory: Inventory, capacity: int = ItemCoun
     return item_count_constraint
 
 
-# Create an item with the given prototype ID from the given protoset
-func create_item(protoset: JSON, prototype_id: String) -> InventoryItem:
-    var item = InventoryItem.new(protoset, prototype_id)
+# Create an item with the given ItemType
+func create_item(item_type: ItemType) -> ItemStack:
+    var item = ItemStack.new(item_type)
     return item
 
 

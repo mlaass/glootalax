@@ -2,11 +2,12 @@ extends TestSuite
 
 var inventory_3x3: Inventory
 var inventory_3x3_2: Inventory
-var item_1x1: InventoryItem
-var item_2x2: InventoryItem
-var item_2x2_2: InventoryItem
+var item_1x1: ItemStack
+var item_2x2: ItemStack
+var item_2x2_2: ItemStack
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_grid.json")
+const ITEM_1X1 = preload("res://tests/data/item_types/item_1x1.tres")
+const ITEM_2X2 = preload("res://tests/data/item_types/item_2x2.tres")
 
 
 func init_suite():
@@ -23,12 +24,12 @@ func init_suite():
 
 
 func init_test():
-    inventory_3x3 = create_inventory_grid(TEST_PROTOSET, Vector2i(3, 3))
-    inventory_3x3_2 = create_inventory_grid(TEST_PROTOSET, Vector2i(3, 3))
-    
-    item_1x1 = create_item(TEST_PROTOSET, "item_1x1")
-    item_2x2 = create_item(TEST_PROTOSET, "item_2x2")
-    item_2x2_2 = create_item(TEST_PROTOSET, "item_2x2")
+    inventory_3x3 = create_inventory_grid(Vector2i(3, 3))
+    inventory_3x3_2 = create_inventory_grid(Vector2i(3, 3))
+
+    item_1x1 = create_item(ITEM_1X1)
+    item_2x2 = create_item(ITEM_2X2)
+    item_2x2_2 = create_item(ITEM_2X2)
 
 
 func cleanup_test() -> void:
@@ -40,11 +41,11 @@ func test_has_place_for() -> void:
     # Empty inventory
     assert(inventory_3x3.can_add_item(item_1x1))
     assert(inventory_3x3.can_add_item(item_2x2))
-    
+
     # Inventory containing 1x1 item
     assert(inventory_3x3.add_item(item_1x1))
     assert(inventory_3x3.can_add_item(item_2x2))
-    
+
     # Inventory containing 2x2 item
     item_2x2.set_max_stack_size(1)
     assert(inventory_3x3.add_item(item_2x2))
@@ -63,13 +64,13 @@ func test_add_item_automerge() -> void:
     # Empty inventory
     assert(inventory_3x3.add_item_automerge(item_2x2))
     assert(inventory_3x3.get_item_count() == 1)
-    
+
     # Inventory containing 2x2 item
     assert(inventory_3x3.add_item_automerge(item_2x2_2))
     assert(inventory_3x3.get_item_count() == 1)
     assert(!inventory_3x3.has_item(item_2x2_2));
 
-    item_2x2_2 = InventoryItem.new(TEST_PROTOSET, "item_2x2")
+    item_2x2_2 = ItemStack.new(ITEM_2X2)
 
     # No stack space, no grid space
     assert(item_2x2.set_stack_size(item_2x2.get_max_stack_size()))
@@ -124,7 +125,7 @@ func test_automerge() -> void:
     assert(inventory_3x3.add_item(item_2x2))
     assert(item_2x2_2.set_stack_size(3))
     assert(inventory_3x3_2.add_item(item_2x2_2))
-    
+
     # Not enough space
     assert(!inventory_3x3.add_item_automerge(item_2x2_2))
 

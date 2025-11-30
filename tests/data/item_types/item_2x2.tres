@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemType" load_steps=3 format=3 uid="uid://cycvxq4umo1gc"]
+
+[ext_resource type="Script" uid="uid://bvb5c4tt8nff" path="res://addons/gloot/core/item_type.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://wh7hsc1iyady" path="res://images/item_armour_silver.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "item_2x2"
+name = "Armour"
+texture = ExtResource("2")
+size = Vector2i(2, 2)

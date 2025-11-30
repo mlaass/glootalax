@@ -7,12 +7,9 @@ var inventory: Inventory
 var inventory2: Inventory
 var constraint_manager: ConstraintManager
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_basic.json")
-const TEST_PROTOTYPE_ID = "minimal_item"
-const TEST_PROTOSET_W = preload("res://tests/data/protoset_stacks.json")
-const TEST_PROTOTYPE_ID_W = "minimal_item"
-const TEST_PROTOSET_G = preload("res://tests/data/protoset_grid.json")
-const TEST_PROTOTYPE_ID_G = "item_2x2"
+const MINIMAL_ITEM = preload("res://tests/data/item_types/minimal_item.tres")
+const ITEM_1X1 = preload("res://tests/data/item_types/item_1x1.tres")
+const ITEM_2X2 = preload("res://tests/data/item_types/item_2x2.tres")
 
 
 func init_suite():
@@ -30,8 +27,8 @@ func init_suite():
 
 
 func init_test() -> void:
-    inventory = create_inventory(TEST_PROTOSET)
-    inventory2 = create_inventory(TEST_PROTOSET)
+    inventory = create_inventory()
+    inventory2 = create_inventory()
     constraint_manager = inventory._constraint_manager
 
 
@@ -47,13 +44,12 @@ func test_init() -> void:
 
 
 func test_has_space_for() -> void:
-    var item = create_item(TEST_PROTOSET, TEST_PROTOTYPE_ID)
+    var item = create_item(MINIMAL_ITEM)
     assert(constraint_manager.has_space_for(item))
 
 
 func test_w_has_space_for() -> void:
-    inventory.protoset = TEST_PROTOSET_W
-    var item = create_item(TEST_PROTOSET_W, TEST_PROTOTYPE_ID_W)
+    var item = create_item(MINIMAL_ITEM)
 
     enable_weight_constraint(inventory, 10.0)
     assert(constraint_manager.get_constraint(WeightConstraint) != null)
@@ -71,8 +67,7 @@ func test_w_has_space_for() -> void:
 
 
 func test_g_has_space_for() -> void:
-    inventory.protoset = TEST_PROTOSET_G
-    var item = create_item(TEST_PROTOSET_G, TEST_PROTOTYPE_ID_G)
+    var item = create_item(ITEM_2X2)
 
     var grid_constraint = enable_grid_constraint(inventory, Vector2i(3, 3))
     assert(grid_constraint != null)
@@ -91,8 +86,7 @@ func test_g_has_space_for() -> void:
 
 
 func test_wg_has_space_for() -> void:
-    inventory.protoset = TEST_PROTOSET_W
-    var item = create_item(TEST_PROTOSET_W, TEST_PROTOTYPE_ID_W)
+    var item = create_item(MINIMAL_ITEM)
 
     enable_grid_constraint(inventory, Vector2i(3, 3))
     enable_weight_constraint(inventory, 10.0)
@@ -116,13 +110,12 @@ func test_wg_has_space_for() -> void:
 
 
 func test_g_enforce_constraints() -> void:
-    inventory.protoset = TEST_PROTOSET_G
-    var item = create_item(TEST_PROTOSET_G, TEST_PROTOTYPE_ID_G)
+    var item = create_item(ITEM_2X2)
 
     var grid_constraint = enable_grid_constraint(inventory, Vector2i(3, 3))
     assert(grid_constraint != null)
 
-    var new_item = inventory.create_and_add_item("item_2x2")
+    var new_item = inventory.create_and_add_item(ITEM_2X2)
     assert(grid_constraint.get_item_position(new_item) == Vector2i.ZERO)
 
     var test_data := [
@@ -141,12 +134,10 @@ func test_g_enforce_constraints() -> void:
 
 
 func test_sg_enforce_constraints() -> void:
-    inventory.protoset = TEST_PROTOSET_G
-
     var grid_constraint := enable_grid_constraint(inventory, Vector2i(3, 3))
     assert(grid_constraint != null)
 
-    var new_item := inventory.create_and_add_item(TEST_PROTOTYPE_ID_G)
+    var new_item := inventory.create_and_add_item(ITEM_2X2)
     assert(grid_constraint.get_item_position(new_item) == Vector2i.ZERO)
 
     # Test cases:
@@ -162,7 +153,7 @@ func test_sg_enforce_constraints() -> void:
     ]
 
     for data in test_data:
-        var test_item := InventoryItem.new(TEST_PROTOSET_G, TEST_PROTOTYPE_ID_G)
+        var test_item := ItemStack.new(ITEM_2X2)
 
         grid_constraint.size = data.input.inv_size
         new_item.set_max_stack_size(data.input.new_item_max_stack_size)
@@ -178,15 +169,13 @@ func test_sg_enforce_constraints() -> void:
 
 
 func test_sg_wrong_stack_type() -> void:
-    inventory.protoset = TEST_PROTOSET_G
-
     var grid_constraint := enable_grid_constraint(inventory, Vector2i(2, 2))
     assert(grid_constraint != null)
 
-    var new_item := inventory.create_and_add_item(TEST_PROTOTYPE_ID_G)
+    var new_item := inventory.create_and_add_item(ITEM_2X2)
     assert(grid_constraint.get_item_position(new_item) == Vector2i.ZERO)
 
-    var test_item := InventoryItem.new(TEST_PROTOSET_G, "item_1x1")
+    var test_item := ItemStack.new(ITEM_1X1)
     new_item.set_max_stack_size(2)
     assert(new_item.set_stack_size(1))
     assert(!inventory.can_add_item(test_item))
@@ -197,15 +186,14 @@ func test_sg_wrong_stack_type() -> void:
 
 
 func test_wg_enforce_constraints() -> void:
-    inventory.protoset = TEST_PROTOSET_G
-    var item = create_item(TEST_PROTOSET_G, TEST_PROTOTYPE_ID_G)
+    var item = create_item(ITEM_2X2)
 
     var weight_constraint = enable_weight_constraint(inventory, 10.0)
     var grid_constraint = enable_grid_constraint(inventory, Vector2i(3, 3))
     assert(weight_constraint != null)
     assert(grid_constraint != null)
 
-    var new_item = inventory.create_and_add_item("item_1x1")
+    var new_item = inventory.create_and_add_item(ITEM_1X1)
     assert(grid_constraint.get_item_position(new_item) == Vector2i.ZERO)
 
     var test_data := [
@@ -221,5 +209,5 @@ func test_wg_enforce_constraints() -> void:
         assert(add_item_result == data.expected)
         if add_item_result && (item.get_stack_size() > 0):
             assert(grid_constraint.rect_free(grid_constraint.get_item_rect(item), item))
-        
+
     inventory.remove_item(new_item)

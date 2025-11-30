@@ -11,35 +11,31 @@ A universal inventory system for the Godot game engine (version 4.4 and newer).
 ## Table of Contents
 
 1. [Features](#features)
-    1. [Inventory Item Class](#inventory-item-class)
-    2. [Item Prototypes and Prototrees](#item-prototypes-and-prototrees)
+    1. [ItemType Resource](#itemtype-resource)
+    2. [ItemStack Class](#itemstack-class)
     3. [Inventory Class](#inventory-class)
     4. [Inventory Constraints](#inventory-constraints)
     5. [Item Slots](#item-slots)
     6. [UI Controls](#ui-controls)
 2. [Installation](#installation)
 3. [Usage](#usage)
-4. [Creating Item Prototypes](#creating-item-prototypes)
-    1. [Minimal Prototree](#minimal-prototree)
-    2. [`stack_size` and `max_stack_size`](#stack_size-and-max_stack_size)
-    3. [Prototrees with Grid Constraint Properties](#prototrees-with-grid-constraint-properties)
-    4. [Prototrees with Weight Constraint Properties](#prototrees-with-weight-constraint-properties)
-    5. [Prototype Inheritance](#prototype-inheritance)
-    6. [Editing Item Properties](#editing-item-properties)
+4. [Creating Item Types](#creating-item-types)
+    1. [Basic ItemType](#basic-itemtype)
+    2. [Stack Size Properties](#stack-size-properties)
+    3. [Grid Constraint Properties](#grid-constraint-properties)
+    4. [Weight Constraint Properties](#weight-constraint-properties)
+    5. [Custom Properties](#custom-properties)
 5. [Serialization](#serialization)
 6. [Documentation](#documentation)
 7. [Examples](#examples)
 
 ## Features
 
-### Inventory Item Class
-The [`InventoryItem`](docs/inventory_item.md) class represents an item stack. All item stacks have a default stack size (and maximum stack size) of 1. Items can also have other properties that are based on item prototypes from a [prototype tree](#item-prototypes-and-prototrees).
+### ItemType Resource
+The [`ItemType`](docs/item_type.md) resource defines common properties for inventory items. ItemTypes are Godot `.tres` resource files that can be created and edited in the Godot editor.
 
-### Item Prototypes and Prototrees
-
-Prototypes define common properties for inventory items and items based on a prototype have the same properties as the prototype. They can also override some of those properties or define completely new ones that are not present in the prototype.
-
-Prototypes can inherit other prototypes, forming a tree-like structure, i.e. a [`Prototree`](docs/prototree.md). Prototrees are defined in JSON format and are stored as a [JSON resource](https://docs.godotengine.org/en/stable/classes/class_json.html).
+### ItemStack Class
+The [`ItemStack`](docs/item_stack.md) class represents an item stack in an inventory. All item stacks reference an `ItemType` resource and have a stack size (default 1). Items can also have custom properties that override or extend the properties from their ItemType.
 
 ### Inventory Class
 The ![](addons/gloot/images/icon_inventory.svg) [`Inventory`](docs/inventory.md) class represents a basic inventory with basic inventory operations (adding, removing, transferring items etc.) and can be configured by adding various [inventory constraints](#inventory-constraints).
@@ -62,13 +58,13 @@ The following controls offer some basic interaction with various inventories:
 * ![](addons/gloot/images/icon_ctrl_capacity.svg) [`CtrlInventoryCapacity`](docs/ctrl_inventory_capacity.md) - Control node for displaying inventory capacity as a progress bar (in case a `WeightConstraint` or an `ItemCountConstraint` is attached to the inventory).
 
     ![](images/screenshots/ss_capacity.png)
-    
+
 * ![](addons/gloot/images/icon_ctrl_inventory_grid.svg) [`CtrlInventoryGrid`](docs/ctrl_inventory_grid.md) - Control node for displaying inventories with a `GridConstraint` on a 2d grid.
 
     ![](images/screenshots/ss_inventory_grid.png)
-    
+
 * ![](addons/gloot/images/icon_ctrl_item_slot.svg) [`CtrlItemSlot`](docs/ctrl_item_slot.md) - A control node representing an inventory slot (`ItemSlot`).
-    
+
     ![](images/screenshots/ss_item_slot.png)
 
 ## Installation
@@ -84,161 +80,121 @@ The following controls offer some basic interaction with various inventories:
 
 ## Usage
 
-1. Create a JSON resource that will hold all the item prototypes used by the inventory (see [Creating Item Prototypes](#creating-item-prototypes) below).
-2. Create an `Inventory` node in your scene and set its `prototree_json` property (previously created).
+1. Create ItemType resources (`.tres` files) that define your item types (see [Creating Item Types](#creating-item-types) below).
+2. Create an `Inventory` node in your scene.
 3. (*Optional*) Add constraints as child nodes to the previously created inventory node.
-3. Add items to the inventory from the inspector:
-
-    ![](images/screenshots/ss_inspector.png)
-
-    Items can also be added from code, e.g. by calling `create_and_add_item()` to create and add items based on the given prototype path:
+4. Add items to the inventory by dragging ItemType resources from the FileSystem dock onto the inventory in the inspector, or from code:
     ```gdscript
-    inventory.create_and_add_item("melee_weapons/knife")
+    var item_type = preload("res://items/sword.tres")
+    inventory.create_and_add_item(item_type)
     ```
-4. (*Optional*) Create item slots that will hold various items (for example the currently equipped weapon or armor).
-5. Create some UI controls to display the created inventory and its contents.
-6. Call `add_item()`, `remove_item()` etc. from your scripts to manipulate inventory nodes. Refer to [the documentation](https://github.com/peter-kish/gloot/tree/dev_v3.0.0/docs) for more details about the available properties, methods and signals for each class.
+5. (*Optional*) Create item slots that will hold various items (for example the currently equipped weapon or armor).
+6. Create some UI controls to display the created inventory and its contents.
+7. Call `add_item()`, `remove_item()` etc. from your scripts to manipulate inventory nodes. Refer to [the documentation](docs/) for more details about the available properties, methods and signals for each class.
 
-## Creating Item Prototypes
+## Creating Item Types
 
-An item prototype is a set of item properties that all items based on that prototype will contain. Items based on a specific prototype can override these properties or add new properties that are not defined in the prototype.
+An ItemType is a Godot resource (`.tres` file) that defines the properties all items of that type will share. Each item in an inventory references an ItemType and can optionally override its properties.
 
-Prototypes can inherit other prototypes, forming a tree-like structure, i.e. a `Prototree`. An item prototype is defined by its path in the prototree and its properties.
+### Basic ItemType
 
-### Minimal Prototree
+To create an ItemType:
 
-Prototrees are defined as JSON resources in which the tree is defined as a JSON object whose key-value pairs define the prototypes. The key represents the prototype ID, while the value is another object that represents the prototype properties.
+1. In the FileSystem dock, right-click and select "New Resource..."
+2. Search for and select "ItemType"
+3. Save the resource as a `.tres` file (e.g., `sword.tres`)
+4. Configure the properties in the inspector:
+   - `id` - A unique identifier string for this item type
+   - `texture` - The texture/icon for items of this type
+   - `properties` - A dictionary of custom properties
 
-Below is an example of a minimal prototree in JSON format:
-```javascript
-{
-    // "minimal_item" with no properties:
-    "minimal_item": {
-    }
-}
+Example of a minimal ItemType in `.tres` format:
+```
+[gd_resource type="Resource" script_class="ItemType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/gloot/core/item_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "minimal_item"
 ```
 
-This prototree only contains one prototype named `minimal_item`, which has no properties.
+### Stack Size Properties
 
-### `stack_size` and `max_stack_size`
+ItemTypes can define stack-related properties:
 
-To define the stack size of an item prototype, use the `stack_size` property. If not defined, the stack size will be 1. Some GLoot functions that work with item stacks (e.g. `Inventory.split_stack` or `InventoryItem.split`) will manipulate this property.
-
-Similar to `stack_size`, the `max_stack_size` defines the maximum stack size and its default value is 1.
-
-Example:
-```javascript
-{
-    // The default stack size and the default maximum stack size is 1:
-    "watch": {},
-    // A full deck of 52 cards:
-    "deck_of_cards": {
-        "stack_size": 52,
-        "max_stack_size": 52
-    },
-    // Half a magazine of bullets:
-    "pistol_bullets": {
-        "stack_size": 12,
-        "max_stack_size": 24
-    }
-}
-```
-
-### Prototrees with Grid Constraint Properties
-
-A `GridConstraint` can interpret the following item properties:
-* `size` (`Vector2i`) - Defines the width and height of the item. If not defined, the item size is `Vector2i(1, 1)`.
-* `rotated` (`bool`) - If `true`, the item is rotated by 90 degrees. If not defined, the item is not rotated.
-* `positive_rotation` (`bool`) - Indicates whether the item icon will be rotated by positive or negative 90 degrees. If not defined, the item is rotated by positive 90 degrees.
-
-Example:
-```javascript
-{
-    // The default item size is (1, 1):
-    "1x1_knife": {},
-    // The bombs will have a size of (2, 2):
-    "2x2_bomb": {
-        "size": "Vector2i(2, 2)"
-    },
-    // Spears will have a size of (1, 3), but will be be rotated to be
-    // positioned horizontally (size.y becomes its width):
-    "1x3_spear": {
-        "size": "Vector2i(1, 3)",
-        "rotated": "true"
-    }
-}
-```
-
-### Prototrees with Weight Constraint Properties
-
-If an item is inside an inventory with a `WeightConstraint`, its `weight` property is interpreted as the (unit) weight of the item.
-
-Example:
-```javascript
-{
-    // The default item weight is 1 and the default stack size is 1.
-    // The total stack weight is 1 * 1 = 1:
-    "small_item": {},
-    // The total stack weight is 1 * 20 = 20:
-    "big_item": {
-        "weight": 20
-    },
-    // The total stack weight is 10 * 2 = 20:
-    "small_stackable_item": {
-        "stack_size": 10,
-        "max_stack_size": 10,
-        "weight": 2
-    }
-}
-```
-
-### Prototype Inheritance
-
-As already mentioned, a prototype can inherit properties from another prototype. The base of a derived prototype is defined using the `inherits` property. The derived prototypes can override properties from the base or define new properties.
-
-Example:
-```javascript
-{
-    // Base prototype for melee weapons.
-    // Defines the "weapon_type" and "damage" properties:
-    "melee_weapon": {
-        "weapon_type": "melee",
-        "damage": 1
-    },
-    // Inherits the "weapon_type" property ("melee").
-    // Overrides the "damage" property (from 1 to 30):
-    "axe": {
-        "inherits": "melee_weapon",
-        "damage": 30
-    },
-    // Inherits the "weapon_type" property ("melee").
-    // Overrides the "damage" property (from 1 to 10) and adds an
-    // item description:
-    "knife": {
-        "inherits": "melee_weapon",
-        "damage": 10,
-        "description": "A standard kitchen knife."
-    }
-}
-```
-
-### Editing Item Properties
-
-Item properties defined in the prototree can additionally be overridden by each individual item that uses that prototree. Use the `set_property()` method to set/override property values, or the `clear_property()` to clear them:
+- `stack_size` - The initial stack size (default: 1)
+- `max_stack_size` - The maximum stack size (default: 1)
 
 Example:
 ```gdscript
-# Decrease the size of an item stack by 1
-var stack_size: int = item.get_property("stack_size")
-if stack_size > 0:
-    item.set_property("stack_size", stack_size - 1)
+# In your ItemType resource:
+properties = {
+    "stack_size": 12,
+    "max_stack_size": 24
+}
 ```
 
-Item properties can also be modified and overridden from the editor:
-![](images/screenshots/ss_inspector_inventory_item.png)
+Items with `max_stack_size` greater than 1 can be stacked together. GLoot provides methods like `Inventory.split_stack()` and `Inventory.merge_stacks()` to manipulate stacks.
 
-To open the item editor select an inventory node, select an item in the inspector and press the "Edit" button.
-Properties marked with green in the item editor represent overridden properties.
+### Grid Constraint Properties
+
+When using a `GridConstraint`, ItemTypes can define:
+
+- `size` (`Vector2i`) - The width and height of the item. Default is `Vector2i(1, 1)`.
+- `rotated` (`bool`) - If `true`, the item is rotated by 90 degrees.
+- `positive_rotation` (`bool`) - Whether the item rotates by positive or negative 90 degrees.
+
+These can be set as exported properties on the ItemType or in the `properties` dictionary:
+```gdscript
+# As exported property:
+size = Vector2i(2, 2)
+
+# Or in properties dictionary:
+properties = {
+    "size": Vector2i(2, 2),
+    "rotated": true
+}
+```
+
+### Weight Constraint Properties
+
+When using a `WeightConstraint`, the `weight` property on an ItemType defines the unit weight of items:
+
+```gdscript
+# As exported property:
+weight = 5.0
+
+# The total weight of a stack is: weight * stack_size
+```
+
+### Custom Properties
+
+ItemTypes can have a `properties` dictionary for any custom data your game needs:
+
+```gdscript
+properties = {
+    "damage": 25,
+    "weapon_type": "melee",
+    "description": "A sharp blade.",
+    "rarity": "common"
+}
+```
+
+Access these properties on an ItemStack:
+```gdscript
+var damage = item.get_property("damage", 0)  # Second arg is default value
+var desc = item.get_property("description", "")
+```
+
+Individual items can override properties from their ItemType:
+```gdscript
+# Override a property on a specific item
+item.set_property("damage", 30)
+
+# Clear an override to use the ItemType's value again
+item.clear_property("damage")
+```
 
 ## Serialization
 
@@ -264,9 +220,11 @@ if res.error == OK:
     inventory.deserialize(dict)
 ```
 
+Items are serialized with a reference to their ItemType resource path, so make sure your ItemType resources remain at consistent paths.
+
 ## Documentation
 
-The documentation can be found [here](https://github.com/peter-kish/gloot/tree/dev_v3.0.0/docs).
+The documentation can be found [here](docs/).
 
 ## Examples
 

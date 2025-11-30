@@ -1,6 +1,7 @@
 @tool
 extends Node2D
 
+const ITEM_2X2 = preload("res://tests/data/item_types/item_2x2.tres")
 
 func _ready():
-    %CtrlInventoryItem.item = InventoryItem.new(preload("res://tests/data/protoset_grid.json"), "item_2x2")
+    %CtrlInventoryItem.item = ItemStack.new(ITEM_2X2)

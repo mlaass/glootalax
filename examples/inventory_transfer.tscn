@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dwu4vhba7uc2m"]
+[gd_scene load_steps=8 format=3 uid="uid://dwu4vhba7uc2m"]
 
 [ext_resource type="Script" uid="uid://5hfig5q3x8it" path="res://addons/gloot/core/inventory.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://marv3em7xope" path="res://images/item_book_blue.png" id="2_yi3ph"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" uid="uid://cyvjw5qac3vlb" path="res://examples/inventory_transfer.gd" id="4"]
 [ext_resource type="Script" uid="uid://bu5mhp7ayfx4j" path="res://addons/gloot/ui/ctrl_inventory.gd" id="4_0by68"]
 [ext_resource type="Script" uid="uid://trghhrgo3fax" path="res://addons/gloot/ui/ctrl_item_slot.gd" id="6_bfwo4"]
-[ext_resource type="JSON" path="res://tests/data/protoset_basic.json" id="6_yy1r8"]
 [ext_resource type="Script" uid="uid://c6wangdtwc4m7" path="res://addons/gloot/core/item_slot.gd" id="8_v60ia"]
 
 [node name="InventoryTransfer" type="Control"]
@@ -104,36 +103,27 @@ text = ">>>"
 [node name="InventoryLeft" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("2")
-protoset = ExtResource("6_yy1r8")
 _serialized_format = {
 "items": [{
-"protoset": "res://tests/data/protoset_basic.json",
-"prototype_id": "item1"
+"item_type": "res://tests/data/item_types/item1.tres"
 }, {
-"protoset": "res://tests/data/protoset_basic.json",
-"prototype_id": "item_2"
+"item_type": "res://tests/data/item_types/item_2.tres"
 }],
-"node_name": "InventoryLeft",
-"protoset": "res://tests/data/protoset_basic.json"
+"node_name": "InventoryLeft"
 }
 
 [node name="InventoryRight" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("2")
-protoset = ExtResource("6_yy1r8")
 _serialized_format = {
 "items": [{
-"protoset": "res://tests/data/protoset_basic.json",
-"prototype_id": "item1"
+"item_type": "res://tests/data/item_types/item1.tres"
 }, {
-"protoset": "res://tests/data/protoset_basic.json",
-"prototype_id": "item_2"
+"item_type": "res://tests/data/item_types/item_2.tres"
 }],
-"node_name": "InventoryRight",
-"protoset": "res://tests/data/protoset_basic.json"
+"node_name": "InventoryRight"
 }
 
 [node name="ItemSlot" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("8_v60ia")
-protoset = ExtResource("6_yy1r8")

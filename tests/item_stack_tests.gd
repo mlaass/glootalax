@@ -2,9 +2,11 @@ extends TestSuite
 
 var inventory: Inventory
 var slot: ItemSlot
-var item: InventoryItem
+var item: ItemStack
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_basic.json")
+const MINIMAL_ITEM = preload("res://tests/data/item_types/minimal_item.tres")
+const ITEM1 = preload("res://tests/data/item_types/item1.tres")
+const CONTAINING_DICT = preload("res://tests/data/item_types/containing_dict.tres")
 
 func init_suite() -> void:
     tests = [
@@ -23,10 +25,9 @@ func init_suite() -> void:
 
 
 func init_test() -> void:
-    inventory = create_inventory(TEST_PROTOSET)
+    inventory = create_inventory()
     slot = ItemSlot.new()
-    slot.protoset = TEST_PROTOSET
-    item = inventory.create_and_add_item("minimal_item")
+    item = inventory.create_and_add_item(MINIMAL_ITEM)
 
 
 func cleanup_test() -> void:
@@ -41,13 +42,12 @@ func test_get_inventory() -> void:
 
 
 func test_swap() -> void:
-    var inventory2 = create_inventory(TEST_PROTOSET)
-    var item2 = inventory2.create_and_add_item("minimal_item")
+    var inventory2 = create_inventory()
+    var item2 = inventory2.create_and_add_item(MINIMAL_ITEM)
     var slot2 = ItemSlot.new()
-    slot2.protoset = TEST_PROTOSET
 
     # Swap items between two inventories
-    assert(InventoryItem.swap(item, item2))
+    assert(ItemStack.swap(item, item2))
     assert(item.get_inventory() == inventory2)
     assert(item2.get_inventory() == inventory)
 
@@ -56,7 +56,7 @@ func test_swap() -> void:
     inventory.add_item(item2)
     var idx = inventory.get_item_index(item)
     var idx2 = inventory.get_item_index(item2)
-    assert(InventoryItem.swap(item, item2))
+    assert(ItemStack.swap(item, item2))
     assert(item.get_inventory() == inventory)
     assert(item2.get_inventory() == inventory)
     assert(inventory.get_item_index(item) == idx2)
@@ -67,15 +67,11 @@ func test_swap() -> void:
 
 
 func test_get_property() -> void:
-    assert(item.get_property("name", "none") == "none")
-    var item2 := inventory.create_and_add_item("item1")
+    assert(item.get_property("name", "none") == "")
+    var item2 := inventory.create_and_add_item(ITEM1)
     assert(item2.get_property("name", "none") == "item 1")
     item2.set_property("name", "item 2")
     assert(item2.get_property("name", "none") == "item 2")
-    var properties := item2.get_properties()
-    assert(properties.size() == 2)
-    assert("name" in properties)
-    assert("image" in properties)
 
 
 func test_set_property() -> void:
@@ -84,7 +80,7 @@ func test_set_property() -> void:
 
 
 func test_references() -> void:
-    var item2 := create_item(preload("res://tests/data/protoset_dict.json"), "containing_dict")
+    var item2 := create_item(CONTAINING_DICT)
     var dict: Dictionary = item2.get_property("dictionary")
     assert(dict != null)
     assert(dict.has("foo"))
@@ -95,14 +91,14 @@ func test_references() -> void:
     assert(item2.get_property("dictionary")["baz"] == 42)
     item2.set_property("dictionary", dict)
     assert(item2.get_property("dictionary")["baz"] == 43)
-    
+
 
 func test_clear_property() -> void:
     item.set_property("name", "Bob")
     item.clear_property("name")
-    assert(item.get_property("name", "none") == "none")
+    assert(item.get_property("name", "none") == "")
 
-    var item2 := inventory.create_and_add_item("item1")
+    var item2 := inventory.create_and_add_item(ITEM1)
     item2.set_property("name", "Bob")
     assert(item2.get_property("name", "none") == "Bob")
     item2.clear_property("name")
@@ -113,29 +109,30 @@ func test_reset() -> void:
     item.set_property("foo", "bar")
 
     item.reset()
-    assert(item.protoset == inventory.protoset)
-    assert(item.get_prototype() != null)
-    assert(item.get_prototype().get_prototype_id() == "minimal_item")
+    assert(item.item_type != null)
+    assert(item.item_type.id == "minimal_item")
     assert(item.get_overridden_properties().is_empty())
     assert(!item.has_property("foo"))
 
+    # reset() only clears property overrides, item_type is preserved
     inventory.remove_item(item)
+    item.set_property("bar", "baz")
     item.reset()
-    assert(item.protoset == null)
-    assert(item.get_prototype() == null)
+    assert(item.item_type != null)
+    assert(item.item_type.id == "minimal_item")
     assert(item.get_overridden_properties().is_empty())
 
 
 func test_get_texture() -> void:
     assert(item.get_texture() == null)
-    var item2 := inventory.create_and_add_item("item1")
+    var item2 := inventory.create_and_add_item(ITEM1)
     assert(item2.get_texture() != null)
     assert(item2.get_texture().resource_path == "res://images/item_book_blue.png")
 
 
 func test_get_title() -> void:
     assert(item.get_title() == "minimal_item")
-    var item2 := inventory.create_and_add_item("item1")
+    var item2 := inventory.create_and_add_item(ITEM1)
     assert(item2.get_title() == "item 1")
 
 

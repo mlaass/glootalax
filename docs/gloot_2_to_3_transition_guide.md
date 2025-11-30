@@ -1,26 +1,30 @@
 # GLoot v2 to v3 Transition Guide
 
+> **Note:** This guide covers migration from GLoot v2.x to v3.x. GLoot has since introduced ItemType resources and ItemStack (replacing protosets and InventoryItem). See the main README.md for current documentation.
+
 This guide provides an overview of the changes introduced in GLoot version 3.0, and will hopefully enable a smooth transition from version 2.x.
 
-## Protosets
+## Protosets (Deprecated in v4+)
 
-Protosets have undergone significant changes in version 3.0. The essential updates include:
+> **Note:** Protosets have been replaced with ItemType resources in newer versions. ItemType is a Godot Resource (.tres file) that can be created and edited in the Godot editor.
+
+Protosets underwent significant changes in version 3.0. The essential updates included:
 
 ### Resource Type Update
 
-The `ItemProtoset` resource type has been removed and protosets are now represented as builtin JSON resources.
+The `ItemProtoset` resource type was removed and protosets were represented as builtin JSON resources.
 
 ### JSON Structure
 
-The general JSON structure of a protoset has also been changed (details can be found in the `Creating Item Prototypes` section of the `README.md` file).
+The general JSON structure of a protoset was also changed.
 
 ### Protoset Editing
 
-The protoset editor has been removed. Editing raw JSON files is now the only supported method for creating and managing protosets.
+The protoset editor was removed. Editing raw JSON files was the only supported method for creating and managing protosets.
 
 ### Item Dimensions
 
-The `width` and `height` properties (integers) have been replaced with the `size` property, represented as a Vector2i.
+The `width` and `height` properties (integers) were replaced with the `size` property, represented as a Vector2i.
 
 ## Inventories
 
@@ -33,6 +37,8 @@ Inventory management has been unified and simplified. Instead of using multiple 
 * `InventoryGridStacked`: Use `Inventory` with both `GridConstraint` and `WeightConstraint`.
 
 ## Inventory Items
+
+> **Note:** `InventoryItem` has been renamed to `ItemStack` in newer versions.
 
 Key updates to inventory item handling:
 
@@ -60,4 +66,4 @@ Some UI Control classes have also been unified and simplified:
 For additional information:
 
 * Refer to the `README.md` file for more comprehensive documentation.
-* Explore the provided examples to better understand the new features and workflows in GLoot v3.0.
+* Explore the provided examples to better understand the new features and workflows.

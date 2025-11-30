@@ -1,9 +1,8 @@
-[gd_scene load_steps=18 format=3 uid="uid://dkfn8qojbtud4"]
+[gd_scene load_steps=17 format=3 uid="uid://dkfn8qojbtud4"]
 
 [ext_resource type="Script" uid="uid://d0pfc3q6sof8y" path="res://addons/gloot/ui/ctrl_inventory_grid.gd" id="3"]
 [ext_resource type="Script" uid="uid://c5ro8fq1haxrt" path="res://examples/inventory_grid_transfer.gd" id="4"]
 [ext_resource type="Script" uid="uid://trghhrgo3fax" path="res://addons/gloot/ui/ctrl_item_slot.gd" id="6"]
-[ext_resource type="JSON" path="res://tests/data/protoset_grid.json" id="8_kriwd"]
 [ext_resource type="Texture2D" uid="uid://bpmdtgysdm2tp" path="res://images/field_background.png" id="9"]
 [ext_resource type="Script" uid="uid://5hfig5q3x8it" path="res://addons/gloot/core/inventory.gd" id="9_xnylc"]
 [ext_resource type="Texture2D" uid="uid://cdhuw0juxw3up" path="res://images/field_highlighted_background.png" id="10"]
@@ -157,12 +156,10 @@ offset_bottom = 14.0
 [node name="ItemSlot" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("10_mbp7e")
-protoset = ExtResource("8_kriwd")
 
 [node name="InventoryLeft" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_xnylc")
-protoset = ExtResource("8_kriwd")
 _serialized_format = {
 "constraints": {
 "res://addons/gloot/core/constraints/grid_constraint.gd": {
@@ -176,14 +173,11 @@ _serialized_format = {
 }
 },
 "items": [{
-"protoset": "res://tests/data/protoset_grid.json",
-"prototype_id": "item_1x1"
+"item_type": "res://tests/data/item_types/item_1x1.tres"
 }, {
-"protoset": "res://tests/data/protoset_grid.json",
-"prototype_id": "item_2x2"
+"item_type": "res://tests/data/item_types/item_2x2.tres"
 }],
-"node_name": "InventoryLeft",
-"protoset": "res://tests/data/protoset_grid.json"
+"node_name": "InventoryLeft"
 }
 
 [node name="GridConstraint" type="Node" parent="InventoryLeft"]
@@ -193,7 +187,6 @@ size = Vector2i(5, 5)
 [node name="InventoryRight" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_xnylc")
-protoset = ExtResource("8_kriwd")
 _serialized_format = {
 "constraints": {
 "res://addons/gloot/core/constraints/grid_constraint.gd": {
@@ -207,14 +200,11 @@ _serialized_format = {
 }
 },
 "items": [{
-"protoset": "res://tests/data/protoset_grid.json",
-"prototype_id": "item_1x1"
+"item_type": "res://tests/data/item_types/item_1x1.tres"
 }, {
-"protoset": "res://tests/data/protoset_grid.json",
-"prototype_id": "item_2x2"
+"item_type": "res://tests/data/item_types/item_2x2.tres"
 }],
-"node_name": "InventoryRight",
-"protoset": "res://tests/data/protoset_grid.json"
+"node_name": "InventoryRight"
 }
 
 [node name="GridConstraint" type="Node" parent="InventoryRight"]

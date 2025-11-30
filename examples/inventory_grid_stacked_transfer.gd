@@ -14,12 +14,12 @@ func _ready() -> void:
     %BtnUnequip.pressed.connect(_on_btn_unequip)
 
 
-func _on_item_mouse_entered(item: InventoryItem) -> void:
+func _on_item_mouse_entered(item: ItemStack) -> void:
     %LblInfo.show()
     %LblInfo.text = item.get_title()
 
 
-func _on_item_mouse_exited(_item: InventoryItem) -> void:
+func _on_item_mouse_exited(_item: ItemStack) -> void:
     %LblInfo.hide()
 
 
@@ -36,7 +36,7 @@ func _on_btn_sort(ctrl_inventory) -> void:
 
 
 func _on_btn_split(ctrl_inventory) -> void:
-    var selected_items: Array[InventoryItem] = ctrl_inventory.get_selected_inventory_items()
+    var selected_items: Array[ItemStack] = ctrl_inventory.get_selected_inventory_items()
     if selected_items.is_empty():
         return
 
@@ -55,7 +55,7 @@ func _on_btn_unequip() -> void:
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-    return data is InventoryItem
+    return data is ItemStack
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

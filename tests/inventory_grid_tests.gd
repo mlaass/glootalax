@@ -2,11 +2,12 @@ extends TestSuite
 
 var inventory_3x3: Inventory
 var inventory_3x3_2: Inventory
-var item_1x1: InventoryItem
-var item_2x2: InventoryItem
-var item_2x2_2: InventoryItem
+var item_1x1: ItemStack
+var item_2x2: ItemStack
+var item_2x2_2: ItemStack
 
-const TEST_PROTOSET = preload("res://tests/data/protoset_grid.json")
+const ITEM_1X1 = preload("res://tests/data/item_types/item_1x1.tres")
+const ITEM_2X2 = preload("res://tests/data/item_types/item_2x2.tres")
 
 func init_suite():
     tests = [
@@ -25,12 +26,12 @@ func init_suite():
 
 
 func init_test():
-    inventory_3x3 = create_inventory_grid(TEST_PROTOSET, Vector2i(3, 3))
-    inventory_3x3_2 = create_inventory_grid(TEST_PROTOSET, Vector2i(3, 3))
-    
-    item_1x1 = create_item(TEST_PROTOSET, "item_1x1")
-    item_2x2 = create_item(TEST_PROTOSET, "item_2x2")
-    item_2x2_2 = create_item(TEST_PROTOSET, "item_2x2")
+    inventory_3x3 = create_inventory_grid(Vector2i(3, 3))
+    inventory_3x3_2 = create_inventory_grid(Vector2i(3, 3))
+
+    item_1x1 = create_item(ITEM_1X1)
+    item_2x2 = create_item(ITEM_2X2)
+    item_2x2_2 = create_item(ITEM_2X2)
 
 
 func cleanup_test() -> void:
@@ -81,11 +82,11 @@ func test_change_size() -> void:
 
 
 func test_create_and_add_item_at() -> void:
-    var new_item = inventory_3x3.get_constraint(GridConstraint).create_and_add_item_at("item_1x1", Vector2i(1, 1))
+    var new_item = inventory_3x3.get_constraint(GridConstraint).create_and_add_item_at(ITEM_1X1, Vector2i(1, 1))
     assert(new_item)
     assert(inventory_3x3.get_item_count() == 1)
     assert(inventory_3x3.has_item(new_item))
-    assert(inventory_3x3.has_item_with_prototype_id("item_1x1"))
+    assert(inventory_3x3.has_item_with_item_type(ITEM_1X1))
     assert(inventory_3x3.get_constraint(GridConstraint).get_item_position(new_item) == Vector2i(1, 1))
 
 
@@ -115,7 +116,7 @@ func test_move_item_to() -> void:
     assert(inventory_3x3.get_constraint(GridConstraint).move_item_to(item_1x1, Vector2i.ZERO))
     assert(inventory_3x3.get_item_count() == 1)
     assert(inventory_3x3.get_constraint(GridConstraint).get_item_position(item_1x1) == Vector2i.ZERO)
-    
+
     # Move to a new location
     assert(inventory_3x3.get_constraint(GridConstraint).move_item_to(item_1x1, Vector2i.ONE * 2))
     assert(inventory_3x3.get_item_count() == 1)
@@ -152,7 +153,7 @@ func test_serialize():
     assert(grid_constraint.size.y == 3)
     assert(grid_constraint.get_item_position(inventory_3x3.get_items()[0]) == Vector2i.ZERO)
     assert(grid_constraint.get_item_position(inventory_3x3.get_items()[1]) == Vector2i.ONE)
-    
+
 
 func test_serialize_json():
     var grid_constraint: GridConstraint = inventory_3x3.get_constraint(GridConstraint)

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemType" load_steps=3 format=3 uid="uid://cim5l1lh3sen0"]
+
+[ext_resource type="Script" uid="uid://bvb5c4tt8nff" path="res://addons/gloot/core/item_type.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://b87v12g1icu3u" path="res://images/item_scroll_blue.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "limited_stackable_item"
+texture = ExtResource("2")
+max_stack_size = 5
