@@ -55,7 +55,7 @@ func _refresh() -> void:
 	_dict_editor.color_map = _get_color_map()
 	_dict_editor.remove_button_map = _get_remove_button_map()
 	# Make ItemType properties readonly - they should be edited in the .tres file
-	_dict_editor.immutable_keys = ["id", "name", "texture", "max_stack_size", "weight", "size"]
+	_dict_editor.immutable_keys = ["id", "name", "texture", "max_stack_size", "weight", "size"] as Array[String]
 	_dict_editor.refresh()
 
 

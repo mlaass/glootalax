@@ -1,5 +1,4 @@
 @tool
-@icon("res://addons/gloot/images/icon_item_count_constraint.svg")
 extends InventoryConstraint
 class_name ItemTypeConstraint
 ## A constraint that limits the inventory to specific item types.
@@ -15,7 +14,7 @@ const _KEY_ALLOWED_TYPES: String = "allowed_types"
 @export var allowed_types: Array[ItemType] = []:
 	set(value):
 		allowed_types = value
-		changed.emit()
+		emit_changed()
 
 
 func _item_type_allowed(item: ItemStack) -> bool:

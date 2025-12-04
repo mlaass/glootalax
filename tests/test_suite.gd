@@ -64,21 +64,21 @@ func create_inventory_grid(size: Vector2i) -> Inventory:
 func enable_weight_constraint(inventory: Inventory, capacity: float = WeightConstraint.DEFAULT_CAPACITY) -> WeightConstraint:
     var weight_constraint = WeightConstraint.new()
     weight_constraint.capacity = capacity
-    inventory.add_child(weight_constraint)
+    inventory.add_constraint(weight_constraint)
     return weight_constraint
 
 
 func enable_grid_constraint(inventory: Inventory, size: Vector2i = GridConstraint.DEFAULT_SIZE) -> GridConstraint:
     var grid_constraint = GridConstraint.new()
     grid_constraint.size = size
-    inventory.add_child(grid_constraint)
+    inventory.add_constraint(grid_constraint)
     return grid_constraint
 
 
 func enable_item_count_constraint(inventory: Inventory, capacity: int = ItemCountConstraint.DEFAULT_CAPACITY) -> ItemCountConstraint:
     var item_count_constraint = ItemCountConstraint.new()
     item_count_constraint.capacity = capacity
-    inventory.add_child(item_count_constraint)
+    inventory.add_constraint(item_count_constraint)
     return item_count_constraint
 
 

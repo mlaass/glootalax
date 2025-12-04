@@ -31,7 +31,7 @@ func init_test() -> void:
 	item_minimal = create_item(MINIMAL_ITEM)
 	inventory = create_inventory()
 	property_constraint = PropertyMatchConstraint.new()
-	inventory.add_child(property_constraint)
+	inventory.add_constraint(property_constraint)
 
 
 func cleanup_test() -> void:
@@ -130,7 +130,7 @@ func test_serialize() -> void:
 	assert(new_constraint.required_properties.has("tier"))
 	assert(new_constraint.required_properties["tier"] == 2)
 	assert(new_constraint.match_all == false)
-	new_constraint.free()
+	# RefCounted objects are automatically freed
 
 
 func test_serialize_json() -> void:
@@ -151,4 +151,4 @@ func test_serialize_json() -> void:
 	assert("weapon" in new_constraint.required_properties["category"])
 	assert("armor" in new_constraint.required_properties["category"])
 	assert(new_constraint.match_all == true)
-	new_constraint.free()
+	# RefCounted objects are automatically freed

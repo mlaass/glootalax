@@ -28,6 +28,13 @@ const _KEY_MAX_STACK_SIZE = _StackManager._KEY_MAX_STACK_SIZE
 
 var _items: Array[ItemStack] = []
 var _constraint_manager: _ConstraintManager = null
+
+## Array of constraints to apply to this inventory.
+@export var constraints: Array[InventoryConstraint] = []:
+  set(value):
+    constraints = value
+    _apply_constraints()
+
 var _serialized_format: Dictionary:
   set(new_serialized_format):
     _serialized_format = new_serialized_format
@@ -46,6 +53,7 @@ func _get_property_list():
 func _update_serialized_format() -> void:
   if Engine.is_editor_hint():
     _serialized_format = serialize()
+    notify_property_list_changed()
 
 
 func _init() -> void:
@@ -58,11 +66,24 @@ func _on_constraint_changed(constraint: InventoryConstraint) -> void:
   constraint_changed.emit(constraint)
 
 
-func _ready() -> void:
-  renamed.connect(_update_serialized_format)
+func _apply_constraints() -> void:
+  if _constraint_manager == null:
+    return
+  # Clear existing constraints
+  _constraint_manager.reset()
+  # Add all exported constraints
+  for constraint in constraints:
+    if constraint != null:
+      add_constraint(constraint)
 
-  if !_serialized_format.is_empty():
-    deserialize(_serialized_format)
+
+func _ready() -> void:
+  var loaded_data = _serialized_format.duplicate(true)  # Save loaded data before it gets overwritten
+  renamed.connect(_update_serialized_format)
+  _apply_constraints()  # This may overwrite _serialized_format
+
+  if !loaded_data.is_empty():
+    deserialize(loaded_data)  # Use the saved copy
 
   for item in get_items():
     _connect_item_signals(item)
@@ -232,14 +253,29 @@ func has_item_with_item_type_id(item_type_id: String) -> bool:
   return get_item_with_item_type_id(item_type_id) != null
 
 
-func _on_constraint_added(constraint: InventoryConstraint) -> void:
+## Adds a constraint to the inventory.
+func add_constraint(constraint: InventoryConstraint) -> void:
+  if constraint == null:
+    return
+  constraint.inventory = self
   _constraint_manager.register_constraint(constraint)
+  _update_serialized_format()
   constraint_added.emit(constraint)
 
 
-func _on_constraint_removed(constraint: InventoryConstraint) -> void:
+## Removes a constraint from the inventory.
+func remove_constraint(constraint: InventoryConstraint) -> void:
+  if constraint == null:
+    return
   _constraint_manager.unregister_constraint(constraint)
+  constraint.inventory = null
+  _update_serialized_format()
   constraint_removed.emit(constraint)
+
+
+## Returns all constraints attached to the inventory.
+func get_constraints() -> Array[InventoryConstraint]:
+  return _constraint_manager._get_constraints()
 
 
 ## Returns the inventory constraint of the given type (script). Returns `null` if the inventory has no constraints of
@@ -261,6 +297,7 @@ func clear() -> void:
 
 
 ## Serializes the inventory into a `Dictionary`.
+## Note: Constraint configuration comes from @export, but constraint state (e.g. item positions) is serialized.
 func serialize() -> Dictionary:
   var result: Dictionary = {}
 
@@ -279,6 +316,7 @@ func serialize() -> Dictionary:
 
 
 ## Loads the inventory data from the given `Dictionary`.
+## Note: Constraint configuration comes from @export, but constraint state (e.g. item positions) is deserialized.
 func deserialize(source: Dictionary) -> bool:
   if !_Verify.dict(source, true, _KEY_NODE_NAME, TYPE_STRING) || \
     !_Verify.dict(source, false, _KEY_ITEMS, TYPE_ARRAY, TYPE_DICTIONARY) || \
@@ -295,18 +333,16 @@ func deserialize(source: Dictionary) -> bool:
       var item = ItemStack.new()
       if item.deserialize(item_dict):
         _add_item_unsafe(item)
+  # Update existing constraint data (don't create new constraints - they come from @export)
   if source.has(_KEY_CONSTRAINTS):
-    if !_constraint_manager.deserialize(source[_KEY_CONSTRAINTS]):
+    if !_constraint_manager._deserialize_undoable(source[_KEY_CONSTRAINTS]):
       return false
 
   return true
 
 
 func _deserialize_undoable(source: Dictionary) -> bool:
-  # ConstraintManager.deserialize() results in weird behavior when used for undo/redo
-  # operations due to the creation of new nodes. ConstraintManager._deserialize_undoable()
-  # should reuse existing nodes instead, but has some other limitations.
-
+  # Note: Constraint configuration comes from @export, but constraint state is deserialized.
   if !_Verify.dict(source, true, _KEY_NODE_NAME, TYPE_STRING) || \
     !_Verify.dict(source, false, _KEY_ITEMS, TYPE_ARRAY, TYPE_DICTIONARY) || \
     !_Verify.dict(source, false, _KEY_CONSTRAINTS, TYPE_DICTIONARY):
@@ -322,6 +358,7 @@ func _deserialize_undoable(source: Dictionary) -> bool:
       var item = ItemStack.new()
       if item.deserialize(item_dict):
         _add_item_unsafe(item)
+  # Update existing constraint data (don't create new constraints - they come from @export)
   if source.has(_KEY_CONSTRAINTS):
     if !_constraint_manager._deserialize_undoable(source[_KEY_CONSTRAINTS]):
       return false

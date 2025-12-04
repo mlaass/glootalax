@@ -1,5 +1,4 @@
 @tool
-@icon("res://addons/gloot/images/icon_item_count_constraint.svg")
 extends InventoryConstraint
 class_name ItemCountConstraint
 ## A constraint that limits the inventory to a given item stack count.
@@ -24,7 +23,7 @@ const _KEY_CAPACITY: String = "capacity"
     if new_capacity > 0.0 && get_occupied_space() > new_capacity:
       return
     capacity = new_capacity
-    changed.emit()
+    emit_changed()
 
 
 ## Returns the number of item stacks that can be added to the inventory.

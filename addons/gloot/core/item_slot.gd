@@ -20,6 +20,26 @@ var _inventory: Inventory = null:
 		_inventory = new_inventory
 		_connect_inventory_signals()
 
+var _serialized_format: Dictionary:
+	set(new_serialized_format):
+		_serialized_format = new_serialized_format
+
+
+func _get_property_list():
+	return [
+		{
+			"name": "_serialized_format",
+			"type": TYPE_DICTIONARY,
+			"usage": PROPERTY_USAGE_STORAGE
+		},
+	]
+
+
+func _update_serialized_format() -> void:
+	if Engine.is_editor_hint():
+		_serialized_format = serialize()
+		notify_property_list_changed()
+
 
 func _connect_inventory_signals() -> void:
 	if !is_instance_valid(_inventory):
@@ -35,49 +55,78 @@ func _disconnect_inventory_signals() -> void:
 	_inventory.item_removed.disconnect(_on_item_removed)
 
 
+## Array of additional constraints to apply to this slot.
+## These are added on top of the built-in ItemCountConstraint.
+@export var constraints: Array[InventoryConstraint] = []:
+	set(value):
+		constraints = value
+		_apply_constraints()
+
+
 func _init() -> void:
 	_inventory = Inventory.new()
 	var item_count_constraint := ItemCountConstraint.new()
-	_inventory.add_child(item_count_constraint)
+	item_count_constraint.constraint_name = "_builtin_item_count"
+	_inventory.add_constraint(item_count_constraint)
 	add_child(_inventory)
-	child_entered_tree.connect(_on_child_entered_tree)
 
 
 func _ready() -> void:
-	# Reparent any constraint children to the internal inventory
-	for child in get_children():
-		if child is InventoryConstraint:
-			child.reparent(_inventory)
+	_apply_constraints()
+	if !_serialized_format.is_empty():
+		deserialize(_serialized_format)
 
 
-func _on_child_entered_tree(node: Node) -> void:
-	if node is InventoryConstraint:
-		# Defer reparent to avoid issues during tree construction
-		node.reparent.call_deferred(_inventory)
+func _apply_constraints() -> void:
+	if !is_instance_valid(_inventory):
+		return
+	# Remove all non-builtin constraints
+	for constraint in _inventory.get_constraints():
+		if !constraint.constraint_name.begins_with("_builtin"):
+			_inventory.remove_constraint(constraint)
+	# Add the exported constraints
+	for constraint in constraints:
+		if constraint != null:
+			_inventory.add_constraint(constraint)
 
 
 func _on_item_added(item: ItemStack) -> void:
+	_update_serialized_format()
 	item_equipped.emit()
 
 
 func _on_item_removed(item: ItemStack) -> void:
+	_update_serialized_format()
 	cleared.emit(item)
 
 
 ## Equips the given inventory item in the slot. If the slot already contains an item, clear() will be called first.
-## Returns false if the clear call fails, the slot can't hold the given item, or already holds the given item. Returns
-## true otherwise.
+## If the item's stack_size exceeds the slot's capacity, only as many items as fit will be taken and the rest
+## will remain in the source inventory.
+## Returns false if the clear call fails, the slot can't hold any of the item, or already holds the given item.
+## Returns true otherwise.
 func equip(item: ItemStack) -> bool:
-	if !can_hold_item(item):
+	if item == null:
 		return false
 
+	# Clear existing item first (so can_hold_item works correctly with ItemCountConstraint)
 	if get_item() != null && !clear():
 		return false
 
-	if item.get_inventory() != null:
-		item.get_inventory().remove_item(item)
+	# Check if slot can hold at least one item from the stack
+	if !_can_hold_any(item):
+		return false
 
-	return _inventory.add_item(item)
+	# Use autosplitmerge to handle partial stack transfers
+	return _inventory.add_item_autosplitmerge(item)
+
+
+## Checks if the slot can hold at least one item from the given stack.
+## Used internally for autosplit operations.
+func _can_hold_any(item: ItemStack) -> bool:
+	if item == null:
+		return false
+	return _inventory._constraint_manager.get_space_for(item).count > 0
 
 
 ## Clears the item slot. Returns false if there's no item in the slot.

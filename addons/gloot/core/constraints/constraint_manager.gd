@@ -94,8 +94,8 @@ func get_constraint(script: Script) -> InventoryConstraint:
 func reset() -> void:
 	while !_constraints.is_empty():
 		var constraint := _constraints.pop_back()
-		inventory.remove_child(constraint)
-		constraint.free()
+		constraint.inventory = null
+	_constraints.clear()
 
 
 func serialize() -> Dictionary:
@@ -103,7 +103,7 @@ func serialize() -> Dictionary:
 
 	for constraint in _constraints:
 		result[constraint.get_script().resource_path] = {
-			_KEY_CONSTRAINT_NAME: constraint.name,
+			_KEY_CONSTRAINT_NAME: constraint.constraint_name,
 			_KEY_CONSTRAINT_DATA: constraint.serialize()
 		}
 
@@ -122,19 +122,18 @@ func deserialize(source: Dictionary) -> bool:
 	for constraint_script_path in source:
 		var constraint_script = load(constraint_script_path)
 		var new_constraint: InventoryConstraint = constraint_script.new()
-		new_constraint.name = source[constraint_script_path].name
-		new_constraint.deserialize(source[constraint_script_path].data)
-		inventory.add_child(new_constraint)
-		if Engine.is_editor_hint():
-			new_constraint.owner = inventory.get_tree().edited_scene_root
+		new_constraint.constraint_name = source[constraint_script_path][_KEY_CONSTRAINT_NAME]
+		new_constraint.deserialize(source[constraint_script_path][_KEY_CONSTRAINT_DATA])
+		# Add constraint via inventory's method which handles registration
+		inventory.add_constraint(new_constraint)
 
 	return true
 
 
 func _deserialize_undoable(source: Dictionary) -> bool:
 	# deserialize() results in weird behavior when used for undo/redo operations
-	# due to the creation of new nodes. This implementation should reuse existing
-	# nodes instead, but has some other limitations.
+	# due to the creation of new constraints. This implementation should reuse existing
+	# constraints instead, but has some other limitations.
 
 	for constraint_script_path in source:
 		if !_Verify.dict(source[constraint_script_path], true, _KEY_CONSTRAINT_NAME, [TYPE_STRING, TYPE_STRING_NAME]):
@@ -143,8 +142,8 @@ func _deserialize_undoable(source: Dictionary) -> bool:
 			return false
 
 	for constraint_script_path in source:
-		for child in inventory.get_children():
-			if child.name == source[constraint_script_path].name:
-				child.deserialize(source[constraint_script_path].data)
+		for constraint in _constraints:
+			if constraint.constraint_name == source[constraint_script_path][_KEY_CONSTRAINT_NAME]:
+				constraint.deserialize(source[constraint_script_path][_KEY_CONSTRAINT_DATA])
 
 	return true

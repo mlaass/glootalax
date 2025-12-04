@@ -1,5 +1,4 @@
 @tool
-@icon("res://addons/gloot/images/icon_property_match_constraint.svg")
 extends InventoryConstraint
 class_name PropertyMatchConstraint
 ## A constraint that limits the inventory to items matching specific property values.
@@ -19,13 +18,13 @@ const _KEY_MATCH_ALL: String = "match_all"
 @export var required_properties: Dictionary = {}:
   set(value):
     required_properties = value
-    changed.emit()
+    emit_changed()
 
 ## If true (AND), all properties must match. If false (OR), any property match is sufficient.
 @export var match_all: bool = true:
   set(value):
     match_all = value
-    changed.emit()
+    emit_changed()
 
 
 func _value_matches(item_value, required_value) -> bool:

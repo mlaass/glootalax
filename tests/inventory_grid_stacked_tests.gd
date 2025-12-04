@@ -109,6 +109,7 @@ func test_stack_join() -> void:
 
 
 func test_stack_cant_join() -> void:
+    item_1x1.set_max_stack_size(1)
     var item_1x1_2 = item_1x1.duplicate()
     assert(inventory_3x3.add_item(item_1x1))
     assert(inventory_3x3.add_item(item_1x1_2))

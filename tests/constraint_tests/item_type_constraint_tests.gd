@@ -27,7 +27,7 @@ func init_test() -> void:
 	item2 = create_item(MINIMAL_ITEM_2)
 	inventory = create_inventory()
 	item_type_constraint = ItemTypeConstraint.new()
-	inventory.add_child(item_type_constraint)
+	inventory.add_constraint(item_type_constraint)
 
 
 func cleanup_test() -> void:
@@ -75,7 +75,7 @@ func test_serialize() -> void:
 	assert(new_constraint.allowed_types.size() == 2)
 	assert(MINIMAL_ITEM in new_constraint.allowed_types)
 	assert(ITEM1 in new_constraint.allowed_types)
-	new_constraint.free()
+	# RefCounted objects are automatically freed
 
 
 func test_serialize_json() -> void:
@@ -92,4 +92,4 @@ func test_serialize_json() -> void:
 	assert(new_constraint.deserialize(constraint_data))
 	assert(new_constraint.allowed_types.size() == 1)
 	assert(MINIMAL_ITEM in new_constraint.allowed_types)
-	new_constraint.free()
+	# RefCounted objects are automatically freed

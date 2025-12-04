@@ -8,10 +8,14 @@ class_name ItemStack
 ## and a stack count. The default stack size is 1.
 
 const _StackManager = preload("res://addons/gloot/core/stack_manager.gd")
+const _SocketManager = preload("res://addons/gloot/core/socket_manager.gd")
 const _Verify = preload("res://addons/gloot/core/verify.gd")
 const _ItemCount = preload("res://addons/gloot/core/item_count.gd")
 
 signal property_changed(property_name: String)  ## Emitted when a property changes.
+signal item_socketed(slot_id: String, item: ItemStack)  ## Emitted when an item is socketed.
+signal item_unsocketed(slot_id: String, item: ItemStack)  ## Emitted when an item is removed from a socket.
+signal socket_changed(slot_id: String)  ## Emitted on any socket state change.
 
 ## The item type resource this stack is based on.
 var item_type: ItemType:
@@ -28,6 +32,7 @@ var _properties: Dictionary = {}  # Property overrides
 
 const _KEY_ITEM_TYPE: String = "item_type"
 const _KEY_PROPERTIES: String = "properties"
+const _KEY_SOCKETS: String = "_sockets"
 const _KEY_TYPE: String = "type"
 const _KEY_VALUE: String = "value"
 const _KEY_STACK_SIZE: String = "stack_size"
@@ -212,7 +217,15 @@ func serialize() -> Dictionary:
 	if not _properties.is_empty():
 		result[_KEY_PROPERTIES] = {}
 		for property_name in _properties.keys():
+			# Skip internal _sockets property (handled separately)
+			if property_name == _KEY_SOCKETS:
+				continue
 			result[_KEY_PROPERTIES][property_name] = _serialize_property(property_name)
+
+	# Serialize socketed items
+	var sockets_data := _SocketManager.serialize_sockets(self)
+	if not sockets_data.is_empty():
+		result[_KEY_SOCKETS] = sockets_data
 
 	return result
 
@@ -232,6 +245,8 @@ func deserialize(source: Dictionary) -> bool:
 		return false
 	if not _Verify.dict(source, false, _KEY_PROPERTIES, TYPE_DICTIONARY):
 		return false
+	if not _Verify.dict(source, false, _KEY_SOCKETS, TYPE_DICTIONARY):
+		return false
 
 	reset()
 
@@ -246,6 +261,11 @@ func deserialize(source: Dictionary) -> bool:
 			var value = _deserialize_property(source[_KEY_PROPERTIES][key])
 			if value != null:
 				set_property(key, value)
+
+	# Deserialize socketed items
+	if source.has(_KEY_SOCKETS):
+		if not _SocketManager.deserialize_sockets(self, source[_KEY_SOCKETS]):
+			return false
 
 	return true
 
@@ -335,3 +355,59 @@ static func swap(item1: ItemStack, item2: ItemStack) -> bool:
 		inv2._constraint_manager._on_post_item_swap(item1, item2)
 
 	return true
+
+
+# Socket operations (delegate to SocketManager)
+## Returns the socket slot definitions from the item's ItemType.
+func get_socket_slots() -> Array[SocketSlotDefinition]:
+	return _SocketManager.get_socket_slots(self)
+
+
+## Returns the socket slot definition for the given slot ID, or null if not found.
+func get_socket_slot(slot_id: String) -> SocketSlotDefinition:
+	return _SocketManager.get_socket_slot(self, slot_id)
+
+
+## Returns the item socketed in the given slot, or null if empty.
+func get_socketed_item(slot_id: String) -> ItemStack:
+	return _SocketManager.get_socketed_item(self, slot_id)
+
+
+## Checks if the given item can be socketed into the specified slot.
+func can_socket_item(slot_id: String, gem: ItemStack) -> bool:
+	return _SocketManager.can_socket_item(self, slot_id, gem)
+
+
+## Sockets the given item into the specified slot. Returns false if validation fails.
+func socket_item(slot_id: String, gem: ItemStack) -> bool:
+	if not _SocketManager.socket_item(self, slot_id, gem):
+		return false
+	item_socketed.emit(slot_id, gem)
+	socket_changed.emit(slot_id)
+	property_changed.emit(_KEY_SOCKETS)
+	return true
+
+
+## Removes and returns the socketed item from the specified slot, or null if empty.
+func unsocket_item(slot_id: String) -> ItemStack:
+	var removed := _SocketManager.unsocket_item(self, slot_id)
+	if removed != null:
+		item_unsocketed.emit(slot_id, removed)
+		socket_changed.emit(slot_id)
+		property_changed.emit(_KEY_SOCKETS)
+	return removed
+
+
+## Returns all socketed items as a dictionary {slot_id: ItemStack}.
+func get_all_socketed_items() -> Dictionary:
+	return _SocketManager.get_all_socketed_items(self)
+
+
+## Checks if this item has any socket slots defined.
+func has_sockets() -> bool:
+	return _SocketManager.has_sockets(self)
+
+
+## Checks if a specific socket slot is occupied.
+func is_socket_filled(slot_id: String) -> bool:
+	return _SocketManager.is_socket_filled(self, slot_id)

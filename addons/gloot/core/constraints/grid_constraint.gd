@@ -1,5 +1,4 @@
 @tool
-@icon("res://addons/gloot/images/icon_grid_constraint.svg")
 extends InventoryConstraint
 class_name GridConstraint
 ## A constraint that limits the inventory to a 2d grid of a given size.
@@ -38,7 +37,7 @@ var _inventory_set_stack: Array[Callable]
         size = old_size
     if size != old_size:
       _refresh_quad_tree()
-      changed.emit()
+      emit_changed()
 ## Insertion priority. Defines whether items will be stacked horizontally-first or vertically-first when inserted into
 ## the 2d grid.
 @export_enum("Horizontal", "Vertical") var insertion_priority: int = INSERTION_PRIORITY_VERTICAL:
@@ -46,7 +45,7 @@ var _inventory_set_stack: Array[Callable]
     if new_insertion_priority == insertion_priority:
       return
     insertion_priority = new_insertion_priority
-    changed.emit()
+    emit_changed()
 
 
 func _push_inventory_set_operation(c: Callable) -> void:
@@ -72,6 +71,9 @@ func _on_item_added(item: ItemStack) -> void:
   if item == null:
     return
   if move_item_to_free_spot(item):
+    # Ensure item position is recorded (even if at default 0,0)
+    if !_item_positions.has(item):
+      _item_positions[item] = Vector2i.ZERO
     _quad_tree.add(get_item_rect(item), item)
   else:
     inventory.pack_item(item)
@@ -153,7 +155,7 @@ func set_item_position_unsafe(item: ItemStack, new_position: Vector2i) -> void:
 
   _item_positions[item] = new_position
   _refresh_quad_tree()
-  changed.emit()
+  emit_changed()
 
 
 ## Returns the size of the given item (from item_type.size or size property override).
@@ -321,7 +323,7 @@ func move_item_to(item: ItemStack, position: Vector2i) -> bool:
   var rect := Rect2i(position, item_size)
   if rect_free(rect, item):
     set_item_position_unsafe(item, position)
-    changed.emit()
+    emit_changed()
     return true
 
   return false

@@ -21,6 +21,7 @@ func init_suite():
         "test_serialize_json",
         "test_property_match_constraint",
         "test_multiple_constraints",
+        "test_stack_size_constraint",
     ]
 
 
@@ -110,7 +111,7 @@ func test_property_match_constraint() -> void:
     var constrained_slot := ItemSlot.new()
     var constraint := PropertyMatchConstraint.new()
     constraint.required_properties = {"category": 0}  # Match ITEM_1X1's category
-    constrained_slot.add_child(constraint)
+    constrained_slot.constraints = [constraint]
     add_child(constrained_slot)
 
     # Create items
@@ -137,7 +138,7 @@ func test_multiple_constraints() -> void:
 
     var constraint1 := PropertyMatchConstraint.new()
     constraint1.required_properties = {"category": 0}  # Match ITEM_1X1
-    constrained_slot.add_child(constraint1)
+    constrained_slot.constraints = [constraint1]
 
     add_child(constrained_slot)
 
@@ -154,4 +155,41 @@ func test_multiple_constraints() -> void:
     assert(!constrained_slot.equip(non_matching_item))
     assert(constrained_slot.get_item() == null)
 
+    constrained_slot.queue_free()
+
+
+func test_stack_size_constraint() -> void:
+    # Create a slot with StackSizeConstraint that limits to 1 item from a stack
+    var constrained_slot := ItemSlot.new()
+    var constraint := StackSizeConstraint.new()
+    constraint.max_stack_size = 1
+    constrained_slot.constraints = [constraint]
+    add_child(constrained_slot)
+
+    # Create a stackable item with stack_size = 3
+    var stackable_item := ItemStack.new(ITEM_1X1)
+    stackable_item.set_property("stack_size", 3)
+    stackable_item.set_property("max_stack_size", 10)
+    var source_inv := Inventory.new()
+    add_child(source_inv)
+    source_inv.add_item(stackable_item)
+
+    # Original stack size should be 3
+    assert(stackable_item.get_stack_size() == 3)
+
+    # When equipping, slot should take only 1 item
+    var equip_result := constrained_slot.equip(stackable_item)
+    assert(equip_result)
+
+    # Slot should have an item
+    assert(constrained_slot.get_item() != null)
+
+    # Slot should have 1 item (the split-off piece)
+    assert(constrained_slot.get_item().get_stack_size() == 1)
+
+    # Original stack should have 2 left (still in source inventory)
+    assert(stackable_item.get_stack_size() == 2)
+    assert(source_inv.has_item(stackable_item))
+
+    source_inv.queue_free()
     constrained_slot.queue_free()

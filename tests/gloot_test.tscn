@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://6ij3qlnr0qr3"]
+[gd_scene load_steps=19 format=3 uid="uid://6ij3qlnr0qr3"]
 
 [ext_resource type="Script" uid="uid://cicxp1a32ye3s" path="res://tests/item_definitions_test.gd" id="2"]
 [ext_resource type="Script" uid="uid://hfcic3vuiugx" path="res://tests/quadtree_tests.gd" id="2_bbskb"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" uid="uid://v2hlddmvlkm8" path="res://tests/test_runner.gd" id="15"]
 [ext_resource type="Script" path="res://tests/constraint_tests/item_type_constraint_tests.gd" id="16_itc"]
 [ext_resource type="Script" path="res://tests/constraint_tests/property_match_constraint_tests.gd" id="17_pmc"]
+[ext_resource type="Script" path="res://tests/socket_tests.gd" id="18_socket"]
 
 [node name="InventorySystemTests" type="Node"]
 script = ExtResource("15")
@@ -68,3 +69,6 @@ script = ExtResource("16_itc")
 
 [node name="PropertyMatchConstraintTests" type="Node" parent="."]
 script = ExtResource("17_pmc")
+
+[node name="SocketTests" type="Node" parent="."]
+script = ExtResource("18_socket")

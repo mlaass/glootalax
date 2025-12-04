@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dkfn8qojbtud4"]
+[gd_scene load_steps=19 format=3 uid="uid://dkfn8qojbtud4"]
 
 [ext_resource type="Script" uid="uid://d0pfc3q6sof8y" path="res://addons/gloot/ui/ctrl_inventory_grid.gd" id="3"]
 [ext_resource type="Script" uid="uid://c5ro8fq1haxrt" path="res://examples/inventory_grid_transfer.gd" id="4"]
@@ -6,8 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://bpmdtgysdm2tp" path="res://images/field_background.png" id="9"]
 [ext_resource type="Script" uid="uid://5hfig5q3x8it" path="res://addons/gloot/core/inventory.gd" id="9_xnylc"]
 [ext_resource type="Texture2D" uid="uid://cdhuw0juxw3up" path="res://images/field_highlighted_background.png" id="10"]
-[ext_resource type="Script" uid="uid://b8hbvp4kl88cn" path="res://addons/gloot/core/constraints/grid_constraint.gd" id="10_4n750"]
 [ext_resource type="Script" uid="uid://c6wangdtwc4m7" path="res://addons/gloot/core/item_slot.gd" id="10_mbp7e"]
+[ext_resource type="Script" uid="uid://b8hbvp4kl88cn" path="res://addons/gloot/core/constraints/grid_constraint.gd" id="grid_script"]
 
 [sub_resource type="StyleBoxTexture" id="1"]
 texture = ExtResource("9")
@@ -48,6 +48,14 @@ region_rect = Rect2(0, 0, 32, 32)
 [sub_resource type="StyleBoxTexture" id="8"]
 texture = ExtResource("10")
 region_rect = Rect2(0, 0, 32, 32)
+
+[sub_resource type="Resource" id="GridConstraint_Left"]
+script = ExtResource("grid_script")
+size = Vector2i(5, 5)
+
+[sub_resource type="Resource" id="GridConstraint_Right"]
+script = ExtResource("grid_script")
+size = Vector2i(5, 5)
 
 [node name="InventoryGridTransfer" type="Control"]
 layout_mode = 3
@@ -160,18 +168,8 @@ script = ExtResource("10_mbp7e")
 [node name="InventoryLeft" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_xnylc")
+constraints = [SubResource("GridConstraint_Left")]
 _serialized_format = {
-"constraints": {
-"res://addons/gloot/core/constraints/grid_constraint.gd": {
-"data": {
-"item_positions": {
-"1": "Vector2i(0, 1)"
-},
-"size": "Vector2i(5, 5)"
-},
-"name": &"GridConstraint"
-}
-},
 "items": [{
 "item_type": "res://tests/data/item_types/item_1x1.tres"
 }, {
@@ -180,25 +178,11 @@ _serialized_format = {
 "node_name": "InventoryLeft"
 }
 
-[node name="GridConstraint" type="Node" parent="InventoryLeft"]
-script = ExtResource("10_4n750")
-size = Vector2i(5, 5)
-
 [node name="InventoryRight" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_xnylc")
+constraints = [SubResource("GridConstraint_Right")]
 _serialized_format = {
-"constraints": {
-"res://addons/gloot/core/constraints/grid_constraint.gd": {
-"data": {
-"item_positions": {
-"1": "Vector2i(0, 1)"
-},
-"size": "Vector2i(5, 5)"
-},
-"name": &"GridConstraint"
-}
-},
 "items": [{
 "item_type": "res://tests/data/item_types/item_1x1.tres"
 }, {
@@ -206,7 +190,3 @@ _serialized_format = {
 }],
 "node_name": "InventoryRight"
 }
-
-[node name="GridConstraint" type="Node" parent="InventoryRight"]
-script = ExtResource("10_4n750")
-size = Vector2i(5, 5)

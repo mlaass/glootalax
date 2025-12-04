@@ -12,6 +12,7 @@ func _ready() -> void:
     %BtnSplitLeft.pressed.connect(_on_btn_split.bind(%CtrlInventoryGridLeft))
     %BtnSplitRight.pressed.connect(_on_btn_split.bind(%CtrlInventoryGridRight))
     %BtnUnequip.pressed.connect(_on_btn_unequip)
+    %BtnUnequip2.pressed.connect(_on_btn_unequip2)
 
 
 func _on_item_mouse_entered(item: ItemStack) -> void:
@@ -52,6 +53,8 @@ func _on_btn_split(ctrl_inventory) -> void:
 
 func _on_btn_unequip() -> void:
     %InventoryRight.add_item(%CtrlItemSlot.item_slot.get_item())
+func _on_btn_unequip2() -> void:
+    %InventoryRight.add_item(%CtrlItemSlot2.item_slot.get_item())
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:

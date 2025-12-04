@@ -58,9 +58,16 @@ signal changed_properties  ## Emitted when any property changes (for editor upda
     emit_changed()
     changed_properties.emit()
 
+## Socket slots that can hold other items (gems, attachments, etc.)
+@export var socket_slots: Array[SocketSlotDefinition] = []:
+  set(value):
+    socket_slots = value
+    emit_changed()
+    changed_properties.emit()
+
 # Built-in property names for validation
 # Note: stack_size is NOT included here - it's a per-ItemStack property, not an ItemType property
-const BUILTIN_PROPERTIES: Array[String] = ["id", "name", "texture", "image", "max_stack_size", "weight", "size"]
+const BUILTIN_PROPERTIES: Array[String] = ["id", "name", "texture", "image", "max_stack_size", "weight", "size", "socket_slots"]
 
 
 ## Returns the value of the given property, or default if not found.
@@ -72,6 +79,7 @@ func get_property(property_name: String, default_value = null) -> Variant:
     "max_stack_size": return max_stack_size
     "weight": return weight
     "size": return size
+    "socket_slots": return socket_slots
     _: return custom_properties.get(property_name, default_value)
 
 
@@ -100,6 +108,7 @@ func get_properties() -> Dictionary:
     "max_stack_size": max_stack_size,
     "weight": weight,
     "size": size,
+    "socket_slots": socket_slots,
   }
   result.merge(custom_properties)
   return result

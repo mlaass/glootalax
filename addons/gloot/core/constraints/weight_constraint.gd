@@ -1,5 +1,4 @@
 @tool
-@icon("res://addons/gloot/images/icon_weight_constraint.svg")
 extends InventoryConstraint
 class_name WeightConstraint
 ## A constraint that limits the inventory to a given weight capacity.
@@ -28,7 +27,7 @@ const _Verify = preload("res://addons/gloot/core/verify.gd")
 		if new_capacity > 0.0 && _occupied_space > new_capacity:
 			return
 		capacity = new_capacity
-		changed.emit()
+		emit_changed()
 
 var _occupied_space: float
 
@@ -88,7 +87,7 @@ func _calculate_occupied_space() -> void:
 			_occupied_space += get_item_weight(item)
 
 	if _occupied_space != old_occupied_space:
-		changed.emit()
+		emit_changed()
 
 	if !Engine.is_editor_hint():
 		assert(_occupied_space <= capacity, "Inventory overflow!")
