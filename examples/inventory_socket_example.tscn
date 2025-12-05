@@ -1,0 +1,152 @@
+[gd_scene load_steps=12 format=3 uid="uid://cs08grgfq7krb"]
+
+[ext_resource type="Script" uid="uid://cvx7l1grrbgd5" path="res://examples/inventory_socket_example.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://d0pfc3q6sof8y" path="res://addons/gloot/ui/ctrl_inventory_grid.gd" id="2_grid"]
+[ext_resource type="Script" uid="uid://5hfig5q3x8it" path="res://addons/gloot/core/inventory.gd" id="3_inventory"]
+[ext_resource type="Script" uid="uid://b8hbvp4kl88cn" path="res://addons/gloot/core/constraints/grid_constraint.gd" id="4_grid_constraint"]
+[ext_resource type="Script" uid="uid://bbacb8tbjjyvy" path="res://addons/gloot/core/constraints/inventory_constraint.gd" id="5_constraint_base"]
+[ext_resource type="Texture2D" uid="uid://bpmdtgysdm2tp" path="res://images/field_background.png" id="6_field_bg"]
+[ext_resource type="Texture2D" uid="uid://cdhuw0juxw3up" path="res://images/field_highlighted_background.png" id="7_field_hl"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_field"]
+texture = ExtResource("6_field_bg")
+region_rect = Rect2(0, 0, 32, 32)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_highlight"]
+texture = ExtResource("7_field_hl")
+region_rect = Rect2(0, 0, 32, 32)
+
+[sub_resource type="Resource" id="GridConstraint_Main"]
+script = ExtResource("4_grid_constraint")
+size = Vector2i(5, 5)
+
+[sub_resource type="Resource" id="GridConstraint_Gems"]
+script = ExtResource("4_grid_constraint")
+size = Vector2i(3, 3)
+
+[node name="InventorySocketExample" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 500.0
+offset_bottom = 400.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Main Inventory (with socketed item)"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CtrlInventoryGrid" type="Control" parent="VBoxContainer/HBoxContainer/VBoxContainer/PanelContainer" node_paths=PackedStringArray("inventory")]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(160, 160)
+layout_mode = 2
+script = ExtResource("2_grid")
+inventory = NodePath("../../../../../InventoryMain")
+field_style = SubResource("StyleBoxTexture_field")
+field_highlighted_style = SubResource("StyleBoxTexture_highlight")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "Gems (drag onto sockets)"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="CtrlInventoryGridGems" type="Control" parent="VBoxContainer/HBoxContainer/VBoxContainer2/PanelContainer" node_paths=PackedStringArray("inventory")]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+script = ExtResource("2_grid")
+inventory = NodePath("../../../../../InventoryGems")
+field_style = SubResource("StyleBoxTexture_field")
+field_highlighted_style = SubResource("StyleBoxTexture_highlight")
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Instructions:
+- Drag gems from the right inventory onto the socket slots on the armour.
+- Socket slots appear as small squares at the bottom-right of socketed items.
+- Right-click a filled socket to remove the gem.
+- A confirmation dialog will appear for socket/unsocket actions."
+
+[node name="LblStatus" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Status: Ready"
+
+[node name="LblInfo" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 60.0
+
+[node name="ConfirmDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Confirm"
+size = Vector2i(300, 100)
+dialog_text = "Confirm action?"
+
+[node name="InventoryMain" type="Node" parent="."]
+script = ExtResource("3_inventory")
+constraints = Array[ExtResource("5_constraint_base")]([SubResource("GridConstraint_Main")])
+_serialized_format = {
+"constraints": {
+"res://addons/gloot/core/constraints/grid_constraint.gd": {
+"data": {
+"item_positions": {},
+"size": "Vector2i(5, 5)"
+},
+"name": ""
+}
+},
+"items": [{
+"item_type": "res://tests/data/item_types/item_2x2_socketed.tres"
+}],
+"node_name": "InventoryMain"
+}
+
+[node name="InventoryGems" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_inventory")
+constraints = Array[ExtResource("5_constraint_base")]([SubResource("GridConstraint_Gems")])
+_serialized_format = {
+"constraints": {
+"res://addons/gloot/core/constraints/grid_constraint.gd": {
+"data": {
+"item_positions": {
+"1": "Vector2i(1, 0)"
+},
+"size": "Vector2i(3, 3)"
+},
+"name": ""
+}
+},
+"items": [{
+"item_type": "res://tests/data/item_types/fire_gem.tres"
+}, {
+"item_type": "res://tests/data/item_types/ice_gem.tres"
+}],
+"node_name": "InventoryGems"
+}

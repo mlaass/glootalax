@@ -8,6 +8,8 @@ signal inventory_item_clicked(item: ItemStack)
 signal inventory_item_selected(item: ItemStack)
 signal item_mouse_entered(item: ItemStack)
 signal item_mouse_exited(item: ItemStack)
+signal socket_drop_requested(parent_item: ItemStack, slot_id: String, gem_item: ItemStack) ## Emitted when an item is dropped on a socket slot.
+signal socket_clicked(parent_item: ItemStack, slot_id: String, mouse_button: int) ## Emitted when a socket slot is clicked.
 
 const _Undoables = preload("res://addons/gloot/editor/undoables.gd")
 const _CtrlDraggableInventoryItem = preload("res://addons/gloot/ui/ctrl_draggable_inventory_item.gd")
@@ -191,6 +193,16 @@ func _populate_list() -> void:
 		if stretch_item_icons:
 			ctrl_draggable_inventory_item.icon_stretch_mode = TextureRect.STRETCH_SCALE
 		ctrl_draggable_inventory_item.drag_tint = drag_tint
+
+		# Connect socket signals if available
+		if ctrl_draggable_inventory_item.has_signal("socket_drop_requested"):
+			ctrl_draggable_inventory_item.socket_drop_requested.connect(
+				func(slot_id, gem): socket_drop_requested.emit(item, slot_id, gem)
+			)
+		if ctrl_draggable_inventory_item.has_signal("socket_clicked"):
+			ctrl_draggable_inventory_item.socket_clicked.connect(
+				func(slot_id, btn): socket_clicked.emit(item, slot_id, btn)
+			)
 
 		_ctrl_item_container.add_child(ctrl_draggable_inventory_item)
 

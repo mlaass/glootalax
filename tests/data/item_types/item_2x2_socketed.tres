@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="ItemType" load_steps=10 format=3 uid="uid://c5pya4t2lx4tg"]
+
+[ext_resource type="Script" uid="uid://bvb5c4tt8nff" path="res://addons/gloot/core/item_type.gd" id="1_ug1bd"]
+[ext_resource type="Script" uid="uid://e4awl0g2ubre" path="res://addons/gloot/core/socket_slot_definition.gd" id="2_t7snc"]
+[ext_resource type="Texture2D" uid="uid://wh7hsc1iyady" path="res://images/item_armour_silver.png" id="3_33quq"]
+[ext_resource type="Script" uid="uid://bbacb8tbjjyvy" path="res://addons/gloot/core/constraints/inventory_constraint.gd" id="3_t7snc"]
+[ext_resource type="Script" uid="uid://csru5aqy5mao8" path="res://addons/gloot/core/constraints/property_match_constraint.gd" id="4_constraint"]
+
+[sub_resource type="Resource" id="Resource_constraint1"]
+script = ExtResource("4_constraint")
+required_properties = {
+"socketable": true
+}
+
+[sub_resource type="Resource" id="Resource_slot1"]
+script = ExtResource("2_t7snc")
+id = "gem_slot_1"
+display_name = "Gem Slot 1"
+constraints = Array[ExtResource("3_t7snc")]([SubResource("Resource_constraint1")])
+metadata/_custom_type_script = "uid://e4awl0g2ubre"
+
+[sub_resource type="Resource" id="Resource_constraint2"]
+script = ExtResource("4_constraint")
+required_properties = {
+"socketable": true
+}
+
+[sub_resource type="Resource" id="Resource_slot2"]
+script = ExtResource("2_t7snc")
+id = "gem_slot_2"
+display_name = "Gem Slot 2"
+constraints = Array[ExtResource("3_t7snc")]([SubResource("Resource_constraint2")])
+metadata/_custom_type_script = "uid://e4awl0g2ubre"
+
+[resource]
+script = ExtResource("1_ug1bd")
+id = "item_2x2_socketed"
+name = "Socketed Armour"
+texture = ExtResource("3_33quq")
+size = Vector2i(2, 2)
+custom_properties = {
+&"category": 3
+}
+socket_slots = Array[ExtResource("2_t7snc")]([SubResource("Resource_slot1"), SubResource("Resource_slot2")])

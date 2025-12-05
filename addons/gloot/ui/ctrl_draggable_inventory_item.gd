@@ -3,6 +3,8 @@ extends Control
 
 signal activated
 signal clicked(at_position: Vector2, mouse_button_index: int)
+signal socket_drop_requested(slot_id: String, dropped_item: ItemStack) ## Forwarded from CtrlInventoryItemWithSockets.
+signal socket_clicked(slot_id: String, mouse_button: int) ## Forwarded from CtrlInventoryItemWithSockets.
 
 var item: ItemStack:
 	set(new_item):
@@ -43,6 +45,16 @@ func _ready() -> void:
 	resized.connect(func():
 		_ctrl_inventory_item.size = size
 	)
+
+	# Forward socket signals if the item control supports them
+	if _ctrl_inventory_item.has_signal("socket_drop_requested"):
+		_ctrl_inventory_item.socket_drop_requested.connect(
+			func(slot_id, gem): socket_drop_requested.emit(slot_id, gem)
+		)
+	if _ctrl_inventory_item.has_signal("socket_clicked"):
+		_ctrl_inventory_item.socket_clicked.connect(
+			func(slot_id, btn): socket_clicked.emit(slot_id, btn)
+		)
 
 
 func _notification(what: int) -> void:
