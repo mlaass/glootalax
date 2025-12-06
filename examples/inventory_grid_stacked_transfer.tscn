@@ -313,6 +313,9 @@ _serialized_format = {
 "name": ""
 }
 },
+"items": [{
+"item_type": "res://tests/data/item_types/item_2x2_socketed.tres"
+}],
 "node_name": "InventoryRight"
 }
 

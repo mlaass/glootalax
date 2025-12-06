@@ -1,7 +1,26 @@
-[gd_resource type="Resource" script_class="ItemType" load_steps=3 format=3 uid="uid://cycvxq4umo1gc"]
+[gd_resource type="Resource" script_class="ItemType" load_steps=10 format=3 uid="uid://cycvxq4umo1gc"]
 
 [ext_resource type="Script" uid="uid://bvb5c4tt8nff" path="res://addons/gloot/core/item_type.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://wh7hsc1iyady" path="res://images/item_armour_silver.png" id="2"]
+[ext_resource type="Script" uid="uid://e4awl0g2ubre" path="res://addons/gloot/core/socket_slot_definition.gd" id="2_q1mmn"]
+[ext_resource type="Script" uid="uid://bbacb8tbjjyvy" path="res://addons/gloot/core/constraints/inventory_constraint.gd" id="3_wpga8"]
+[ext_resource type="Script" uid="uid://blkmgj7jv3bgy" path="res://addons/gloot/core/constraints/stack_size_constraint.gd" id="4_rbx4d"]
+[ext_resource type="Script" uid="uid://csru5aqy5mao8" path="res://addons/gloot/core/constraints/property_match_constraint.gd" id="5_ypuxe"]
+
+[sub_resource type="Resource" id="Resource_glihi"]
+script = ExtResource("4_rbx4d")
+metadata/_custom_type_script = "uid://blkmgj7jv3bgy"
+
+[sub_resource type="Resource" id="Resource_e3ijo"]
+script = ExtResource("5_ypuxe")
+metadata/_custom_type_script = "uid://csru5aqy5mao8"
+
+[sub_resource type="Resource" id="Resource_dj2f8"]
+script = ExtResource("2_q1mmn")
+id = "chest"
+display_name = "chest socket"
+constraints = Array[ExtResource("3_wpga8")]([SubResource("Resource_glihi"), SubResource("Resource_e3ijo")])
+metadata/_custom_type_script = "uid://e4awl0g2ubre"
 
 [resource]
 script = ExtResource("1")
@@ -12,3 +31,4 @@ size = Vector2i(2, 2)
 custom_properties = {
 &"category": 3
 }
+socket_slots = Array[ExtResource("2_q1mmn")]([SubResource("Resource_dj2f8")])
