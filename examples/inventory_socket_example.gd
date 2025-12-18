@@ -8,12 +8,6 @@ var _pending_action: Callable = Callable()
 
 
 func _ready() -> void:
-  var socket_scene = preload("res://addons/gloot/ui/ctrl_inventory_item_with_sockets.tscn")
-
-  # Set custom item control scene with socket support for both grids
-  %CtrlInventoryGrid.custom_item_control_scene = socket_scene
-  %CtrlInventoryGrid2.custom_item_control_scene = socket_scene
-
   # Set confirmation callbacks for both grids
   %CtrlInventoryGrid.socket_item_callback = _on_socket_confirm
   %CtrlInventoryGrid.unsocket_item_callback = _on_unsocket_confirm

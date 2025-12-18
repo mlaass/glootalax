@@ -6,10 +6,10 @@
 [node name="PropertiesEditor" type="Window"]
 title = "Edit Item Properties"
 position = Vector2i(0, 36)
-size = Vector2i(800, 300)
+size = Vector2i(500, 1000)
 visible = false
 exclusive = true
-min_size = Vector2i(400, 200)
+min_size = Vector2i(400, 600)
 script = ExtResource("1_4ikx6")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -25,5 +25,63 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="DictEditor" parent="MarginContainer" instance=ExtResource("1_f5dhm")]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HeaderHBox" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TexturePreview" type="TextureRect" parent="MarginContainer/VBoxContainer/HeaderPanel/HeaderHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemInfoVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/HeaderPanel/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ItemName" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HeaderHBox/ItemInfoVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Item Name"
+
+[node name="ItemType" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HeaderHBox/ItemInfoVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+text = "Type: item_type_id"
+
+[node name="ItemStack" type="Label" parent="MarginContainer/VBoxContainer/HeaderPanel/HeaderHBox/ItemInfoVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+text = "Stack: 1"
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Properties" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+layout_mode = 2
+
+[node name="DictEditor" parent="MarginContainer/VBoxContainer/TabContainer/Properties" instance=ExtResource("1_f5dhm")]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Sockets" type="ScrollContainer" parent="MarginContainer/VBoxContainer/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="SocketsContent" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Sockets"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3

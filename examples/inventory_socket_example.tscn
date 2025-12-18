@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cs08grgfq7krb"]
+[gd_scene load_steps=13 format=3 uid="uid://cs08grgfq7krb"]
 
 [ext_resource type="Script" uid="uid://cvx7l1grrbgd5" path="res://examples/inventory_socket_example.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://d0pfc3q6sof8y" path="res://addons/gloot/ui/ctrl_inventory_grid.gd" id="2_grid"]
@@ -17,6 +17,10 @@ texture = ExtResource("7_field_hl")
 region_rect = Rect2(0, 0, 32, 32)
 
 [sub_resource type="Resource" id="GridConstraint_Main"]
+script = ExtResource("4_grid_constraint")
+size = Vector2i(5, 5)
+
+[sub_resource type="Resource" id="GridConstraint_Main2"]
 script = ExtResource("4_grid_constraint")
 size = Vector2i(5, 5)
 
@@ -151,19 +155,21 @@ _serialized_format = {
 
 [node name="InventoryMain2" type="Node" parent="."]
 script = ExtResource("3_inventory")
-constraints = Array[ExtResource("5_constraint_base")]([SubResource("GridConstraint_Main")])
+constraints = Array[ExtResource("5_constraint_base")]([SubResource("GridConstraint_Main2")])
 _serialized_format = {
 "constraints": {
 "res://addons/gloot/core/constraints/grid_constraint.gd": {
 "data": {
-"item_positions": {},
+"item_positions": {
+"0": "Vector2i(2, 0)"
+},
 "size": "Vector2i(5, 5)"
 },
 "name": ""
 }
 },
 "items": [{
-"item_type": "res://tests/data/item_types/item_2x2_socketed.tres"
+"item_type": "res://tests/data/item_types/item_2x2_socketedx6.tres"
 }],
 "node_name": "InventoryMain2"
 }

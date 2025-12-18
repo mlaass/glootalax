@@ -73,6 +73,36 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 1
 
+[node name="SelectionPanel" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SelectionHBox" type="HBoxContainer" parent="VBoxContainer/SelectionPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SelectionTexture" type="TextureRect" parent="VBoxContainer/SelectionPanel/SelectionHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectionInfo" type="VBoxContainer" parent="VBoxContainer/SelectionPanel/SelectionHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SelectionName" type="Label" parent="VBoxContainer/SelectionPanel/SelectionHBox/SelectionInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No item selected"
+
+[node name="SelectionType" type="Label" parent="VBoxContainer/SelectionPanel/SelectionHBox/SelectionInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = ""
+
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 

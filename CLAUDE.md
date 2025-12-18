@@ -70,3 +70,66 @@ Item prototypes defined in JSON with inheritance via `inherits` property:
 ```
 
 Special properties: `stack_size`, `max_stack_size`, `weight`, `size` (Vector2i), `rotated` (bool).
+
+## Socket System
+
+Items can have socket slots defined in their ItemType. Socketed items (gems) are stored as property overrides on the ItemStack.
+
+### Socket Slot Definition
+
+Socket slots are defined in `ItemType.socket_slots` array. Each `SocketSlotDefinition` has:
+- `id` - Unique identifier for the slot
+- `display_name` - Human-readable name
+- `constraints` - Array of InventoryConstraint resources to validate socketed items
+- `use_custom_position` - If true, uses absolute positioning instead of auto-layout
+- `position` - Position when using custom positioning
+- `size_override` - Custom size for the socket visual (Vector2.ZERO for default)
+
+### Pre-socketing Items via `_serialized_format`
+
+To pre-populate items with socketed gems in scenes, use the `_serialized_format` property on Inventory nodes. Add a `_sockets` key to item entries:
+
+```gdscript
+_serialized_format = {
+    "items": [{
+        "item_type": "res://items/socketed_sword.tres",
+        "_sockets": {
+            "gem_slot_1": {
+                "item_type": "res://items/fire_gem.tres"
+            },
+            "gem_slot_2": {
+                "item_type": "res://items/ice_gem.tres",
+                "properties": {
+                    "power": {"type": 2, "value": "25"}
+                }
+            }
+        }
+    }],
+    "node_name": "Inventory"
+}
+```
+
+The `_sockets` dictionary maps slot IDs to serialized ItemStack data. Each socketed item entry follows the same format as regular items:
+- `item_type` - Path to the ItemType resource
+- `properties` (optional) - Property overrides with `type` (Variant.Type) and `value` (var_to_str format)
+
+### Socket Constraints
+
+Common constraint types for sockets:
+- `PropertyMatchConstraint` - Requires specific property values (e.g., `{"socketable": true}`)
+- `ItemTypeConstraint` - Restricts to specific ItemType IDs
+
+### Runtime Socket Operations
+
+```gdscript
+# Check if item has sockets
+item.has_sockets()  # -> bool
+
+# Get socket slot definitions
+item.get_socket_slots()  # -> Array[SocketSlotDefinition]
+
+# Socket/unsocket items
+item.socket_item(slot_id, gem)  # -> bool
+item.unsocket_item(slot_id)  # -> ItemStack or null
+item.get_socketed_item(slot_id)  # -> ItemStack or null
+```

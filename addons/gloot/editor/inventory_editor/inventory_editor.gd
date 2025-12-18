@@ -18,6 +18,7 @@ var inventory: Inventory:
 var _inventory_control: Control
 var _inventory_container: Control
 var _properties_editor: Window
+var _selected_item: ItemStack = null
 
 
 func connect_inventory_signals():
@@ -75,12 +76,17 @@ func _create_inventory_container() -> Control:
 		_inventory_control = CtrlInventoryGrid.new()
 	else:
 		_inventory_control = CtrlInventory.new()
-	_inventory_control.select_mode = ItemList.SelectMode.SELECT_MULTI
+	if _inventory_control is CtrlInventory:
+		_inventory_control.select_mode = ItemList.SelectMode.SELECT_MULTI
 	_inventory_control.size_flags_horizontal = SIZE_EXPAND_FILL
 	_inventory_control.size_flags_vertical = SIZE_EXPAND_FILL
 	_inventory_control.inventory = inventory
 	_inventory_control.inventory_item_activated.connect(_on_inventory_item_activated)
 	_inventory_control.inventory_item_clicked.connect(_on_inventory_item_clicked)
+	if _inventory_control is CtrlInventoryGrid:
+		_inventory_control.inventory_item_selected.connect(_on_item_selected)
+	else:
+		_inventory_control.item_selected.connect(_on_item_selected)
 	_inventory_control.set_drag_forwarding(Callable(), _can_drop_data, _drop_data)
 
 	if inventory.get_constraint(WeightConstraint) != null:
@@ -122,6 +128,32 @@ func _ready() -> void:
 	%BtnRemove.pressed.connect(_on_btn_remove)
 	%BtnClear.pressed.connect(_on_btn_clear)
 	_refresh()
+	_update_selection_display()
+
+
+func _on_item_selected(item: ItemStack) -> void:
+	_selected_item = item
+	_update_selection_display()
+
+
+func _update_selection_display() -> void:
+	if _selected_item == null or not is_instance_valid(_selected_item):
+		%SelectionTexture.texture = null
+		%SelectionName.text = "No item selected"
+		%SelectionType.text = ""
+		%BtnEdit.disabled = true
+		return
+
+	%SelectionTexture.texture = _selected_item.get_texture()
+	%SelectionName.text = _selected_item.get_title()
+	if _selected_item.item_type != null:
+		%SelectionType.text = "Type: %s" % _selected_item.item_type.id
+		if _selected_item.has_sockets():
+			var socket_count = _selected_item.get_socket_slots().size()
+			%SelectionType.text += " | %d socket(s)" % socket_count
+	else:
+		%SelectionType.text = ""
+	%BtnEdit.disabled = false
 
 
 func _on_btn_edit() -> void:

@@ -17,8 +17,9 @@ script = ExtResource("2_t7snc")
 id = "gem_slot_1"
 display_name = "Gem Slot 1"
 constraints = Array[ExtResource("3_t7snc")]([SubResource("Resource_constraint1")])
-size_override = Vector2(64, 64)
-position_offset = Vector2(50, 0)
+size_override = Vector2(12, 12)
+use_custom_position = true
+position = Vector2(10, 2)
 metadata/_custom_type_script = "uid://e4awl0g2ubre"
 
 [sub_resource type="Resource" id="Resource_constraint2"]
@@ -32,8 +33,9 @@ script = ExtResource("2_t7snc")
 id = "gem_slot_2"
 display_name = "Gem Slot 2"
 constraints = Array[ExtResource("3_t7snc")]([SubResource("Resource_constraint2")])
-size_override = Vector2(32, 32)
-position_offset = Vector2(32, 64)
+size_override = Vector2(12, 12)
+use_custom_position = true
+position = Vector2(10, 18)
 metadata/_custom_type_script = "uid://e4awl0g2ubre"
 
 [resource]
