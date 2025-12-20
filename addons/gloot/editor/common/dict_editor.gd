@@ -28,9 +28,16 @@ const _supported_types: Array[int] = [
 @onready var lbl_type = $VBoxContainer/ScrollContainer/GridContainer/LblTitleType
 @onready var lbl_value = $VBoxContainer/ScrollContainer/GridContainer/LblTitleValue
 @onready var ctrl_dummy = $VBoxContainer/ScrollContainer/GridContainer/CtrlDummy
+@onready var add_controls_container = $VBoxContainer/HBoxContainer
 @onready var edt_property_name = $VBoxContainer/HBoxContainer/EdtPropertyName
 @onready var opt_type = $VBoxContainer/HBoxContainer/OptType
 @onready var btn_add = $VBoxContainer/HBoxContainer/BtnAdd
+
+var read_only: bool = false:
+    set(value):
+        read_only = value
+        if is_inside_tree() and add_controls_container:
+            add_controls_container.visible = not read_only
 
 @export var dictionary: Dictionary:
     set(new_dictionary):
@@ -139,7 +146,7 @@ func _add_value_editor(key: String) -> void:
     var value_editor: Control = _ValueEditor.new()
     value_editor.value = dictionary[key]
     value_editor.size_flags_horizontal = SIZE_EXPAND_FILL
-    value_editor.enabled = (not key in immutable_keys)
+    value_editor.enabled = (not read_only) and (not key in immutable_keys)
     value_editor.value_changed.connect(_on_value_changed.bind(key, value_editor))
     grid_container.add_child(value_editor)
 
@@ -157,6 +164,7 @@ func _add_remove_button(key: String) -> void:
         button.disabled = remove_button_map[key].disabled
         button.icon = remove_button_map[key].icon
     button.pressed.connect(_on_remove_button.bind(key))
+    button.visible = not read_only
     grid_container.add_child(button)
 
 

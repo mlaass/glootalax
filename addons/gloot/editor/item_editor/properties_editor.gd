@@ -29,6 +29,8 @@ func _ready() -> void:
 	close_requested.connect(func(): hide())
 	_dict_editor.value_changed.connect(func(key: String, new_value): _on_value_changed(key, new_value))
 	_dict_editor.value_removed.connect(func(key: String): _on_value_removed(key))
+	# Hide the "Add Property" controls - we only want to edit existing properties
+	_dict_editor.add_controls_container.visible = false
 	hide()
 
 
@@ -40,7 +42,6 @@ func _on_value_changed(key: String, new_value) -> void:
 			item.set_property(key, new_value)
 			return true
 	)
-	# TODO: Figure out why this is needed
 	_refresh.call_deferred()
 
 
@@ -61,7 +62,7 @@ func _refresh() -> void:
 
 	# Show/hide sockets tab based on whether item has sockets
 	var has_sockets = item != null and item.has_sockets()
-	var sockets_tab_idx = _tab_container.get_tab_idx_from_control(_sockets_tab)
+	var sockets_tab_idx = _tab_container.get_tab_idx_from_control(_sockets_tab.get_parent())
 	if sockets_tab_idx >= 0:
 		_tab_container.set_tab_hidden(sockets_tab_idx, not has_sockets)
 
@@ -97,8 +98,6 @@ func _refresh_header() -> void:
 
 
 func _refresh_properties() -> void:
-	if _dict_editor.btn_add:
-		_dict_editor.btn_add.icon = _EditorIcons.get_icon("Add")
 	_dict_editor.dictionary = _get_dictionary()
 	_dict_editor.color_map = _get_color_map()
 	_dict_editor.remove_button_map = _get_remove_button_map()

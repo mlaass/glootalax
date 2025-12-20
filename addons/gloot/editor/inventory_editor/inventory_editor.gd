@@ -131,6 +131,13 @@ func _ready() -> void:
 	_update_selection_display()
 
 
+func _exit_tree() -> void:
+	# Clean up properties editor window when inventory editor is destroyed
+	if _properties_editor != null and is_instance_valid(_properties_editor):
+		_properties_editor.queue_free()
+		_properties_editor = null
+
+
 func _on_item_selected(item: ItemStack) -> void:
 	_selected_item = item
 	_update_selection_display()
@@ -160,9 +167,10 @@ func _on_btn_edit() -> void:
 	var selected_item: ItemStack = _inventory_control.get_selected_inventory_item()
 	if selected_item == null:
 		return
-	if _properties_editor == null:
+	if _properties_editor == null or not is_instance_valid(_properties_editor):
 		_properties_editor = _PropertiesEditor.instantiate()
-		add_child(_properties_editor)
+		# Add to editor base control so it's not destroyed when inspector refreshes
+		EditorInterface.get_base_control().add_child(_properties_editor)
 	_properties_editor.item = selected_item
 	_properties_editor.popup_centered(_POPUP_SIZE)
 
@@ -206,5 +214,10 @@ func _drop_data(at_position: Vector2, data) -> void:
 				var res = load(file_path)
 				if res is ItemType:
 					_Undoables.undoable_action(inventory, "Add Inventory Item", func():
-						return (inventory.create_and_add_item(res) != null)
+						var grid_constraint: GridConstraint = inventory.get_constraint(GridConstraint)
+						if grid_constraint != null and _inventory_control is CtrlInventoryGrid:
+							var field_coords: Vector2i = _inventory_control.get_field_coords(at_position)
+							return grid_constraint.create_and_add_item_at(res, field_coords) != null
+						else:
+							return inventory.create_and_add_item(res) != null
 					)
