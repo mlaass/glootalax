@@ -158,48 +158,53 @@ func _create_socket_entry(socket_def: SocketSlotDefinition) -> Control:
 		visual_label.add_theme_font_size_override("font_size", 11)
 		vbox.add_child(visual_label)
 
-	# Socketed item display
+	# Socketed item display row
 	var item_hbox = HBoxContainer.new()
 	item_hbox.add_theme_constant_override("separation", 8)
 	vbox.add_child(item_hbox)
 
 	var socketed_item = item.get_socketed_item(socket_def.id)
 
-	# Item texture
-	var item_texture = TextureRect.new()
-	item_texture.custom_minimum_size = Vector2(32, 32)
-	item_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	item_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	# EditorResourcePicker for selecting ItemType
+	var resource_picker = EditorResourcePicker.new()
+	resource_picker.base_type = "ItemType"
+	resource_picker.editable = true
+	resource_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if socketed_item != null:
-		item_texture.texture = socketed_item.get_texture()
-	item_hbox.add_child(item_texture)
+		resource_picker.edited_resource = socketed_item.item_type
+	resource_picker.resource_changed.connect(
+		func(resource): _on_socket_resource_changed(socket_def, resource_picker, resource)
+	)
+	item_hbox.add_child(resource_picker)
 
-	# Item name or empty state
-	var item_name_label = Label.new()
-	item_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	if socketed_item != null:
-		item_name_label.text = socketed_item.get_title()
-	else:
-		item_name_label.text = "(empty)"
-		item_name_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5, 1))
-	item_hbox.add_child(item_name_label)
+	# Validation icon (hidden by default)
+	var validation_icon = TextureRect.new()
+	validation_icon.custom_minimum_size = Vector2(16, 16)
+	validation_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	validation_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	validation_icon.visible = false
+	item_hbox.add_child(validation_icon)
 
-	# Action button
-	var action_btn = Button.new()
-	if socketed_item != null:
-		action_btn.icon = _EditorIcons.get_icon("Remove")
-		action_btn.tooltip_text = "Remove socketed item"
-		action_btn.pressed.connect(func(): _on_unsocket_item(socket_def.id))
-	else:
-		action_btn.text = "Select..."
-		action_btn.tooltip_text = "Select an item to socket"
-		action_btn.pressed.connect(func(): _on_select_socket_item(socket_def))
-	item_hbox.add_child(action_btn)
+	# Remove button (only visible when item is socketed)
+	var remove_btn = Button.new()
+	remove_btn.icon = _EditorIcons.get_icon("Remove")
+	remove_btn.tooltip_text = "Remove socketed item"
+	remove_btn.visible = socketed_item != null
+	remove_btn.pressed.connect(func(): _on_unsocket_item(socket_def.id))
+	item_hbox.add_child(remove_btn)
+
+	# Store references in panel metadata
+	panel.set_meta("socket_def", socket_def)
+	panel.set_meta("resource_picker", resource_picker)
+	panel.set_meta("validation_icon", validation_icon)
+	panel.set_meta("remove_btn", remove_btn)
 
 	# Enable drag-drop on the panel
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.set_meta("socket_def", socket_def)
-	panel.gui_input.connect(func(event): _on_socket_panel_input(event, panel, socket_def))
+	panel.set_drag_forwarding(
+		Callable(),
+		_can_drop_socket_data.bind(socket_def),
+		_drop_socket_data.bind(socket_def)
+	)
 
 	return panel
 
@@ -229,71 +234,117 @@ func _on_unsocket_item(slot_id: String) -> void:
 	_refresh()
 
 
-func _on_select_socket_item(socket_def: SocketSlotDefinition) -> void:
-	# Open file dialog to select an ItemType
-	var dialog = EditorFileDialog.new()
-	dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
-	dialog.access = EditorFileDialog.ACCESS_RESOURCES
-	dialog.add_filter("*.tres", "Item Types")
-	dialog.title = "Select Item to Socket"
+func _on_socket_resource_changed(socket_def: SocketSlotDefinition, picker: EditorResourcePicker, resource: Resource) -> void:
+	# Find the panel containing this picker to access validation icon
+	# Hierarchy: panel > vbox > item_hbox > resource_picker
+	var panel = picker.get_parent().get_parent().get_parent()
+	var validation_icon = panel.get_meta("validation_icon") as TextureRect
+	var remove_btn = panel.get_meta("remove_btn") as Button
 
-	dialog.file_selected.connect(func(path: String):
-		_socket_item_from_path(socket_def, path)
-		dialog.queue_free()
-	)
-	dialog.canceled.connect(func():
-		dialog.queue_free()
-	)
-
-	add_child(dialog)
-	dialog.popup_centered_ratio(0.7)
-
-
-func _socket_item_from_path(socket_def: SocketSlotDefinition, path: String) -> void:
-	var resource = load(path)
 	if resource == null:
-		push_error("Failed to load resource: %s" % path)
+		# Clear socketed item
+		_Undoables.undoable_action(item, "Clear Socket", func():
+			var removed = item.unsocket_item(socket_def.id)
+			return removed != null or true
+		)
+		validation_icon.visible = false
+		remove_btn.visible = false
 		return
 
 	if not resource is ItemType:
-		push_error("Selected resource is not an ItemType: %s" % path)
+		_show_validation_error(validation_icon, "Selected resource is not an ItemType")
 		return
 
 	var item_type = resource as ItemType
+	var validation = _validate_socket_item(socket_def, item_type)
 
-	# Create a new ItemStack from the ItemType
+	if validation["valid"]:
+		validation_icon.visible = false
+		_socket_item_from_item_type(socket_def, item_type)
+		remove_btn.visible = true
+	else:
+		_show_validation_error(validation_icon, "\n".join(validation["errors"]))
+		# Keep the invalid resource displayed so user can see what they selected
+
+
+func _validate_socket_item(socket_def: SocketSlotDefinition, item_type: ItemType) -> Dictionary:
+	var result = {"valid": true, "errors": []}
+
+	if item_type == null:
+		return result
+
+	# Create a temporary ItemStack to test constraints
+	var test_item = ItemStack.new()
+	test_item.item_type = item_type
+
+	if not socket_def.can_accept_item(test_item):
+		result["valid"] = false
+		# Collect specific constraint violations
+		for constraint in socket_def.constraints:
+			if constraint != null and not constraint.has_space_for(test_item):
+				result["errors"].append(_get_constraint_violation_message(constraint, test_item))
+		if result["errors"].is_empty():
+			result["errors"].append("Item does not meet socket constraints")
+
+	return result
+
+
+func _get_constraint_violation_message(constraint: InventoryConstraint, test_item: ItemStack) -> String:
+	# Try to get a human-readable error message
+	if "required_properties" in constraint:
+		var props = constraint.required_properties
+		if props is Dictionary and props.size() > 0:
+			var missing_parts: Array[String] = []
+			for prop_name in props:
+				var required = props[prop_name]
+				var actual = test_item.get_property(prop_name)
+				if actual != required:
+					missing_parts.append("%s (expected: %s, got: %s)" % [prop_name, required, actual])
+			if missing_parts.size() > 0:
+				return "Property mismatch: " + ", ".join(missing_parts)
+
+	return "Constraint '%s' not satisfied" % constraint.get_class()
+
+
+func _show_validation_error(icon: TextureRect, message: String) -> void:
+	icon.texture = _EditorIcons.get_icon("StatusError")
+	icon.tooltip_text = message
+	icon.visible = true
+	icon.modulate = _COLOR_INVALID
+
+
+func _socket_item_from_item_type(socket_def: SocketSlotDefinition, item_type: ItemType) -> void:
 	var new_item = ItemStack.new()
 	new_item.item_type = item_type
-
-	# Check if it can be socketed
-	if not socket_def.can_accept_item(new_item):
-		push_error("Item '%s' does not meet socket constraints" % item_type.name)
-		return
 
 	_Undoables.undoable_action(item, "Socket Item", func():
 		return item.socket_item(socket_def.id, new_item)
 	)
-	_refresh()
 
 
-func _on_socket_panel_input(event: InputEvent, panel: Control, socket_def: SocketSlotDefinition) -> void:
-	# Handle drag-drop
-	pass
-
-
-func _can_drop_data(_at_position: Vector2, data) -> bool:
-	# Check if data is a file path to an ItemType
-	if data is Dictionary and data.has("files"):
+func _can_drop_socket_data(at_position: Vector2, data, socket_def: SocketSlotDefinition) -> bool:
+	if data is Dictionary and data.has("type") and data["type"] == "files":
 		for file_path in data["files"]:
 			if file_path.ends_with(".tres") or file_path.ends_with(".res"):
-				return true
+				var res = load(file_path)
+				if res is ItemType:
+					return true
 	return false
 
 
-func _drop_data(_at_position: Vector2, data) -> void:
-	# This would need to determine which socket slot was dropped on
-	# For now, we'll handle this in the socket panel input
-	pass
+func _drop_socket_data(at_position: Vector2, data, socket_def: SocketSlotDefinition) -> void:
+	if data is Dictionary and data.has("type") and data["type"] == "files":
+		for file_path in data["files"]:
+			if file_path.ends_with(".tres") or file_path.ends_with(".res"):
+				var res = load(file_path)
+				if res is ItemType:
+					var validation = _validate_socket_item(socket_def, res)
+					if validation["valid"]:
+						_socket_item_from_item_type(socket_def, res)
+						_refresh()
+					else:
+						push_warning("Cannot socket '%s': %s" % [res.name, ", ".join(validation["errors"])])
+					break
 
 
 func _get_dictionary() -> Dictionary:
